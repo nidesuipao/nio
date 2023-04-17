@@ -601,6 +601,7 @@ def convert_center_to_leftdown(x_cord, y_cord, angle, width, height):
     yp = y_cord-(math.sqrt(width**2+height**2)/2)*math.sin(math.atan2(height, width)+angle/180*math.pi)
     return xp, yp
 
+
 def analysis(info, t, ana_path, signal, sensor, location, interval):
     # analysis txt generate
     f = open(ana_path + "/analysis.txt", "w")
@@ -617,7 +618,7 @@ def analysis(info, t, ana_path, signal, sensor, location, interval):
     obj_longdist = "np/debug/dgb_aeb_strtg.crenInfo.objInfo.longDist".split('.')
     obj_latdist = "np/debug/dgb_aeb_strtg.crenInfo.objInfo.latDist".split('.')
     obj_head = "np/debug/dgb_aeb_strtg.crenInfo.objInfo.heading".split('.')
-    id = signal2value(info_, obj_id_)
+    id_ = signal2value(info_, obj_id_)
     detect_sensor = "np/apps/ehy_obf_outputs.obf_objects".split('.')
     obj_ttc = "np/debug/dgb_aeb_strtg.crenInfo.othaInfo.ttc".split('.')
     
@@ -638,7 +639,7 @@ def analysis(info, t, ana_path, signal, sensor, location, interval):
             continue
         detect = signal2value(sensor[d_index][1], detect_sensor)
         for d in detect:
-            if getattr(getattr(d, "fuseobj"), "id") == id:
+            if getattr(getattr(d, "fuseobj"), "id") == id_:
                 f.write("目标车监测传感器：" + str(getattr(getattr(d, "fuseobj"), "fusion_source")) + "\n")
         if sensor[d_index][0] >= cur_timestamp:
             break
@@ -676,9 +677,12 @@ def analysis(info, t, ana_path, signal, sensor, location, interval):
     # ax.set_ylim((_min, _max))
     fig = plt.figure(figsize=(40, 40*_height/_width))
     ax = fig.add_subplot()
-
+    fig_video = plt.figure(figsize=(40, 40*_height/_width))
+    ax_video = fig_video.add_subplot()
+    pic_count = 0
+    #画捕捉到信号变化时刻的道路情况
     for i in range(obj_info.shape[0]):
-        if obj_info[i][0] == id:
+        if obj_info[i][0] == id_:
             c = 'green'
         else:
             c = 'red'
@@ -686,55 +690,93 @@ def analysis(info, t, ana_path, signal, sensor, location, interval):
             head = float(obj_info[i][4])
             ax.arrow(obj_info[i,1], obj_info[i,2], 2*math.cos(head), 2*math.sin(head), 
                      width = 0.01, head_width = 0.2, color = 'black')
+            if c == 'red':
+                ax_video.arrow(obj_info[i,1], obj_info[i,2], 2*math.cos(head), 2*math.sin(head), 
+                        width = 0.01, head_width = 0.2, color = 'black')
         if int(obj_info[i][3]) == 1:
             ax.text(obj_info[i,1], obj_info[i,2], int(obj_info[i][0]))
             x,y = convert_center_to_leftdown(obj_info[i,1], obj_info[i,2], obj_info[i][4]*57.3, obj_info[i][5], obj_info[i][6])
             ax.add_patch(plt.Rectangle((x, y), width = obj_info[i][5], height = obj_info[i][6], facecolor = 'none', 
                                        edgecolor = c , angle = obj_info[i][4]*57.3))
+            if c == 'red':
+                ax_video.text(obj_info[i,1], obj_info[i,2], int(obj_info[i][0]))
+                ax_video.add_patch(plt.Rectangle((x, y), width = obj_info[i][5], height = obj_info[i][6], facecolor = 'none', 
+                                        edgecolor = c , angle = obj_info[i][4]*57.3))
         elif int(obj_info[i][3]) == 2:
             ax.text(obj_info[i,1], obj_info[i,2], int(obj_info[i][0]))
             x,y = convert_center_to_leftdown(obj_info[i,1], obj_info[i,2], obj_info[i][4]*57.3, obj_info[i][5], obj_info[i][6])
             ax.add_patch(plt.Rectangle((x, y), width = obj_info[i][5], height = obj_info[i][6], facecolor = 'none', 
                                        edgecolor = c, angle = obj_info[i][4]*57.3))
+            if c == 'red':
+                ax_video.text(obj_info[i,1], obj_info[i,2], int(obj_info[i][0]))
+                ax_video.add_patch(plt.Rectangle((x, y), width = obj_info[i][5], height = obj_info[i][6], facecolor = 'none', 
+                                        edgecolor = c, angle = obj_info[i][4]*57.3))
+            
         elif int(obj_info[i][3]) == 3:
             ax.text(obj_info[i,1], obj_info[i,2], int(obj_info[i][0]))
             x,y = convert_center_to_leftdown(obj_info[i,1], obj_info[i,2], obj_info[i][4]*57.3, obj_info[i][5], obj_info[i][6])
             ax.add_patch(plt.Rectangle((x, y), width = obj_info[i][5], height = obj_info[i][6], facecolor = 'none', 
                                        edgecolor = c, angle = obj_info[i][4]*57.3))
+            if c == 'red':
+                ax_video.text(obj_info[i,1], obj_info[i,2], int(obj_info[i][0]))
+                ax_video.add_patch(plt.Rectangle((x, y), width = obj_info[i][5], height = obj_info[i][6], facecolor = 'none', 
+                                        edgecolor = c, angle = obj_info[i][4]*57.3))
         else:
             ax.scatter(obj_info[i,1], obj_info[i,2], marker = 'o', s=50, c = '', edgecolors = c)
+            if c ==  'red':
+                ax_video.scatter(obj_info[i,1], obj_info[i,2], marker = 'o', s=50, c = '', edgecolors = c)
     
     
     x,y = convert_center_to_leftdown(1.3, 0, 0, 5.2, 2)
     ax.add_patch(plt.Rectangle((x, y), width = 5.2, height = 2, facecolor = 'none', edgecolor = 'b', angle = 0))
-    ax.arrow(1.3, 0, 2*math.cos(0), 2*math.sin(0), width = 0.01, head_width = 0.2, color = 'black')
-    
+    ax.arrow(1.3, 0, 2*math.cos(0), 2*math.sin(0), width = 0.01, head_width = 0.2, color = 'black')  
 
-    print("ssssssssssssssssssss")
+
+    #绘制自车轨迹，目标车轨迹以及预测轨迹
     yaw_init = -100
     x_init = -1
     y_init = -1
     target_index = 0
     target_info = []
     i_index = 0
-    for d_index in range(len(sensor)):
+    cur_d_index = 0
+    cur_pos_x = -1000
+    cur_pos_y = -1000
+    
+    for d_index in range(cur_d_index, len(sensor)):
         if sensor[d_index][0] < cur_timestamp - interval/2:
             continue
         if sensor[d_index][0] > cur_timestamp + interval/2:
             break
+
         while sensor[d_index][0] > info[i_index][0]:
             id = signal2value(info[i_index][1], obj_id_)
             i_index += 1
+
         obj_info_total = signal2value(sensor[d_index][1], "np/apps/ehy_obf_outputs.obf_objects".split('.'))
 
         for obj in obj_info_total:
             obj_id = getattr(getattr(obj, "fuseobj"), "id")
+            pos_x = getattr(getattr(getattr(obj, "fuseobj"), "pos_vcs"),"x")
+            pos_y = getattr(getattr(getattr(obj, "fuseobj"), "pos_vcs"),"y")
             if obj_id == id and int(id) != 0:
-                pos_x = getattr(getattr(getattr(obj, "fuseobj"), "pos_vcs"),"x")
-                pos_y = getattr(getattr(getattr(obj, "fuseobj"), "pos_vcs"),"y")
                 obj_type = getattr(getattr(getattr(obj, "fuseobj"), "type"),"obj_main_class")
                 obj_head = getattr(getattr(obj, "fuseobj"), "heading")
-                target_info.append([obj_id, pos_x, pos_y, obj_type, obj_head, sensor[d_index][0]])
+                width = getattr(getattr(getattr(obj, "fuseobj"), "size"),"length")
+                height = getattr(getattr(getattr(obj, "fuseobj"), "size"),"width")
+                target_info.append([obj_id, pos_x, pos_y, obj_type, obj_head, sensor[d_index][0], width, height])
+                cur_pos_x = pos_x
+                cur_pos_y = pos_y
+                break
+            # elif abs(cur_pos_x - pos_x) + abs(cur_pos_y - pos_y) < 1:
+            #     obj_type = getattr(getattr(getattr(obj, "fuseobj"), "type"),"obj_main_class")
+            #     obj_head = getattr(getattr(obj, "fuseobj"), "heading")
+            #     target_info.append([obj_id, pos_x, pos_y, obj_type, obj_head, sensor[d_index][0]])
+            #     cur_pos_x = pos_x
+            #     cur_pos_y = pos_y
+            #     break
+
+
 
     for l_index in range(len(location)):
         if location[l_index][0] < cur_timestamp:
@@ -745,23 +787,83 @@ def analysis(info, t, ana_path, signal, sensor, location, interval):
         break
 
     target_info = np.array(target_info)
-    # print(target_info.shape)
-    # print(len(location))
+    # import matplotlib.animation as animation
+    p1 = None
+    p2 = None
+    p3 = None
+    p4 = None
+    i_index = 0
+    is_pretend = False
     for l_index in range(len(location)):
         if location[l_index][0] < cur_timestamp - interval/2:
             continue
         if location[l_index][0] > cur_timestamp + interval/2:
             break
+
         yaw = signal2value(location[l_index][1], "common/localization/relative_localization.euler_angle.yaw".split('.'))
         local_x = signal2value(location[l_index][1], "common/localization/relative_localization.position.x".split('.'))
         local_y = signal2value(location[l_index][1], "common/localization/relative_localization.position.y".split('.'))
+
+        #绘制预测轨迹
+        while not is_pretend and sensor[d_index][0] > info[i_index][0]:
+            id = signal2value(info[i_index][1], obj_id_)
+            if id == id_:
+                print(id)
+                ego_pos_x = signal2value(info[i_index][1], "np/debug/dgb_aeb_strtg.taDiagBusSignals.diagBusForPredEgoTrjStru.egoPosnLgt".split('.'))
+                ego_pos_y = signal2value(info[i_index][1], "np/debug/dgb_aeb_strtg.taDiagBusSignals.diagBusForPredEgoTrjStru.egoPosnLat".split('.'))
+                obj_pos_ = signal2value(info[i_index][1], "np/debug/dgb_aeb_strtg.taDiagBusSignals.carObjInfoOfDiagBusVec".split('.'))
+                for obj_pos_ in obj_pos_:
+                    if getattr(obj_pos_, "diagBusForSortedObjectAeb").id == id_:
+                        obj_pos_x = getattr(obj_pos_, "diagBusForSortedObjectAeb").predCenPosnLgt
+                        obj_pos_y = getattr(obj_pos_, "diagBusForSortedObjectAeb").predCenPosnLat
+
+                        break
+                for pre_index in range(len(ego_pos_x)):
+                    target_pos_x = ego_pos_x[pre_index]
+                    target_pos_y = ego_pos_y[pre_index]
+
+                    target_x = local_x + target_pos_x * math.cos(yaw) - target_pos_y * math.sin(yaw)
+                    target_y = local_y + target_pos_x * math.sin(yaw) + target_pos_y * math.cos(yaw)
+
+                    dx = target_x - x_init
+                    dy = target_y - y_init
+                    ax.scatter(dx * math.cos(-yaw_init) - dy * math.sin(-yaw_init), 
+                               dx * math.sin(-yaw_init) + dy * math.cos(-yaw_init), 
+                               marker = 'o', s=5, c = '', edgecolors = 'yellow')
+                    
+                    target_pos_x = obj_pos_x[pre_index]
+                    target_pos_y = obj_pos_y[pre_index]
+
+                    target_x = local_x + target_pos_x * math.cos(yaw) - target_pos_y * math.sin(yaw)
+                    target_y = local_y + target_pos_x * math.sin(yaw) + target_pos_y * math.cos(yaw)
+
+                    dx = target_x - x_init
+                    dy = target_y - y_init
+                    ax.scatter(dx * math.cos(-yaw_init) - dy * math.sin(-yaw_init), 
+                               dx * math.sin(-yaw_init) + dy * math.cos(-yaw_init), 
+                               marker = 'o', s=5, c = '', edgecolors = 'pink')
+
+                is_pretend = True
+            i_index += 1
+
         #print(local_x, local_y)
         dx = local_x - x_init
         dy = local_y - y_init
-        ax.scatter(dx * math.cos(-yaw_init) - dy * math.sin(-yaw_init) + 0.6, 
-                   dx * math.sin(-yaw_init) + dy * math.cos(-yaw_init), 
-                   marker = 'o', s=5, c = '', edgecolors = 'b')
+        detla_yaw = yaw - yaw_init
+        cur_x = dx * math.cos(-yaw_init) - dy * math.sin(-yaw_init) + 1.3
+        cur_y = dx * math.sin(-yaw_init) + dy * math.cos(-yaw_init)
+        ax.scatter(cur_x, cur_y, marker = 'o', s=5, c = '', edgecolors = 'b')
+
+        if p1 != None:
+            p1.remove()
+            p2.remove()
+        xx, yy = convert_center_to_leftdown(cur_x, cur_y, detla_yaw*57.3, 5.2, 2)
+        p1 = ax_video.add_patch(plt.Rectangle((xx, yy), 
+                                         width = 5.2, height = 2, facecolor = 'none', edgecolor = 'b', angle = detla_yaw*57.3))
+        p2 = ax_video.arrow(cur_x, cur_y, 2*math.cos(detla_yaw), 2*math.sin(detla_yaw), width = 0.01, head_width = 0.2, color = 'black')
         
+        
+
         while target_index < target_info.shape[0] and \
             target_info[target_index][5] >= location[l_index][0] \
             and target_info[target_index][5] < location[l_index+1][0]:
@@ -777,9 +879,26 @@ def analysis(info, t, ana_path, signal, sensor, location, interval):
             ax.scatter(dx * math.cos(-yaw_init) - dy * math.sin(-yaw_init), 
                     dx * math.sin(-yaw_init) + dy * math.cos(-yaw_init), 
                     marker = 'o', s=5, c = '', edgecolors = 'r')
+            if p3 != None:
+                p3.remove()
+                p4.remove()
+
+            cur_x = dx * math.cos(-yaw_init) - dy * math.sin(-yaw_init)
+            cur_y = dx * math.sin(-yaw_init) + dy * math.cos(-yaw_init)
+            detla_yaw += 6.283 - target_info[target_index][4]
+            # target_info.append([obj_id, pos_x, pos_y, obj_type, obj_head, sensor[d_index][0], width, height])
+            xx, yy = convert_center_to_leftdown(cur_x, cur_y, detla_yaw*57.3, target_info[target_index][6], target_info[target_index][7])
+            p3 = ax_video.add_patch(plt.Rectangle((xx, yy), 
+                                         width = target_info[target_index][6], height = target_info[target_index][7], 
+                                         facecolor = 'none', edgecolor = 'green', angle = detla_yaw*57.3))
+            p4 = ax_video.arrow(cur_x, cur_y, 2*math.cos(detla_yaw), 2*math.sin(detla_yaw), width = 0.01, head_width = 0.2, color = 'green')
             target_index += 1
 
+        # if pic_count % 10 ==0:
+        #     fig_video.savefig(ana_path + "/pic/" + str(pic_count))
+        # pic_count += 1
 
+    print("ssssssssssssssssssssss")
     fig.savefig(ana_path + "/analysis.png")
 
  
