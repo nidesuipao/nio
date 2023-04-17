@@ -1,0 +1,117 @@
+syntax = "proto2";
+
+package nio.proto;
+
+import "car_state.proto";
+import "geometry.proto";
+import "perception_object.proto";
+import "decision.proto";
+import "road_map.proto";
+
+message PathPoint {
+  // position of the path point in global frame in m
+  optional Vector3d position = 1;
+
+  // curvature of the path point in rad/m
+  optional double k = 2;
+
+  // tangential direction on path in rad
+  optional double theta = 3;
+
+  // longitudinal displacement along the center line in m
+  // reference line s in m
+  optional double s = 4;
+
+  // lateral displacement from the center line in m
+  optional double l = 5;
+
+  // speed stamp on the path point in m/s
+  optional double speed = 6;
+
+  // speed limit on the path point in m/s
+  optional double speed_limit = 7;
+
+  // acceleration stamp on the path point in m/s^2
+  optional double acceleration = 8;
+
+  // driving direction, false for forward driving, true for backward driving
+  optional bool backward_driving = 9;
+
+  optional double dl = 10;
+
+  optional double ddl = 11;
+
+  // accumulate from first path point whose t is zero
+  optional double t = 12;
+
+  // accumulate from first path point whose s is zero
+  optional double accumulated_s = 13;
+
+  // (dkappa / ds) in rad/m^2
+  optional double dkappa = 14;
+
+  // offset to map center line, unit in m
+  optional double offset_to_map = 15;
+}
+
+enum StopState {
+  DRIVING = 0;
+  STOPPED = 1;
+  STOPPING = 2;
+  START_UP = 3;
+}
+
+message RouteSplitInfo {
+  enum SplitDirection {
+    DIRECTION_NONE = 0;
+    DIRECTION_LEFT = 1;
+    DIRECTION_RIGHT = 2;
+  }
+  optional HdLinkInfo.FormWay split_type = 1;
+  optional SplitDirection split_direction = 2;
+  optional double distance_to_split = 3;
+}
+
+message RouteState {
+  repeated RouteSplitInfo route_split_info = 1;
+}
+
+message Path {
+  enum P2PTaskState {
+    FINISH = 0;
+    RUNNING = 1;
+  }
+  // in ns
+  optional uint64 time_meas = 1;
+
+  // the whole path include several path points
+  repeated PathPoint path_points = 2;
+
+  optional CarState.TurnSignal turn_signal = 3;
+  optional PerceptionObject lead_vehicle = 4;
+  optional DecisionMain decision_main = 5;
+  optional bool is_replan = 6;
+  optional StopState stop_state = 7 [default = DRIVING];
+  optional P2PTaskState task_state = 8;
+  repeated uint64 ref_lane_ids = 9;
+  optional RouteState route_state = 10;
+}
+
+message Routes {
+  repeated Path paths = 1 [deprecated = true];
+  repeated LaneSegments routes = 2;
+  repeated LaneSegments crossable_sections = 3;
+  optional string id = 4;
+  optional string map_file_relative_path = 5;
+}
+
+message SpeedPoint {
+  optional double s = 1;
+  optional double t = 2;
+  // speed (m/s)
+  optional double v = 3;
+  // acceleration (m/s^2)
+  optional double a = 4;
+  // jerk (m/s^3)
+  optional double da = 5;
+}

@@ -1,0 +1,157 @@
+syntax = "proto2";
+
+package nio.proto;
+
+import "path.proto";
+import "car_state.proto";
+import "hmi_state.proto";
+import "geometry.proto";
+import "road_map.proto";
+import "perception_object.proto";
+import "prediction.proto";
+import "perception_signal.proto";
+import "planner_debug.proto";
+import "planner_log.proto";
+import "static_map.proto";
+
+// Directory structure description
+//  ScenarioSimulation 
+//          |-- Refence timestamp sequence
+//          |-- Agent scenario info
+//                      |-- non-ego agent scenario info
+//          |-- ego agent scenario info
+//          |-- Environemnt scenario info
+
+
+message AgentFrameInfo {
+
+  // frame id
+  optional uint64 frame_id = 1;
+
+  // current time stamp in ns
+  optional uint64 timestamp = 2;
+
+  // percpetion object
+  optional PerceptionObject perception_object = 3;
+
+  // timestamp of perception_objects
+  optional uint64 perception_timestamp = 4;
+}
+
+message EgoFrameInfo {
+  // frame id
+  optional uint64 frame_id = 1;
+
+  // current time stamp in ns
+  optional uint64 timestamp = 2;
+
+  // trajectory in this frame
+  optional Path trajectory = 3;
+
+  // car_state for this frame
+  optional CarState car_state = 4;
+
+  optional HmiState hmi_state = 5;
+}
+
+message AgentScenarioInfo {
+
+  // agent id
+  optional int64 agent_id = 1;
+
+  // agent type
+  optional PerceptionObject.Type agent_type = 2;
+
+  // agent dimension: x -> length; y -> width; z -> height
+  optional Vector3d dimension = 3;
+
+  // agent info for all frame in scenario
+  repeated AgentFrameInfo agent_frame_info = 4;
+}
+
+message EgoScenarioInfo {
+
+  // ego id
+  optional int64 agent_id = 1;
+
+  // ego type
+  optional PerceptionObject.Type ego_type = 2;
+
+  // agent dimension: x -> length; y -> width; z -> height
+  optional Vector3d dimension = 3;
+
+  // ego info for all frame in scenario
+  repeated EgoFrameInfo ego_frame_info = 4;
+}
+
+
+message EnvironmentFrameInfo {
+  
+  // frame if
+  optional uint64 frame_id = 1;
+
+  // time stamp for current frame in ns
+  optional uint64 timestamp = 2;
+
+  // traffic signal info
+  optional PerceptionSignals sim_signal = 3;
+
+
+}
+
+message EnvironmentScenarioInfo {
+  
+  // environment info for all frame
+  repeated EnvironmentFrameInfo environment_frame_info = 1;
+}
+
+message ReferenceTimestampSequence {
+
+  repeated uint64 frame_id = 1;
+
+  // reference timestamp in ns
+  repeated uint64 timestamp = 2;
+}
+
+message PlannerDebugInfo {
+  repeated PlannerDebug planner_debug = 1;
+}
+
+message PlannerLogRecord {
+  repeated PlannerLogInfo planner_log_info = 1;
+}
+
+message LabelInfo {
+  enum Label {
+    URBAN = 0;
+    HIGHWAY = 1;
+    JUNCTION = 2;
+    CUT_IN = 3;
+    FOLLOWING = 4;
+    STOP = 5;
+    LANE_CHANGE = 6;
+    PARKING = 7;
+    MERGE = 8;
+    PEDESTRIAN = 9;
+    CYCLIST = 10;
+    TRUCK = 11;
+    MOTION_PLANNING = 12;
+    BEHAVIOR_PLANNING = 13;
+    PREDICTION = 14;
+    CONTROL = 15;
+  };
+  repeated Label label = 1;
+}
+
+message StaticMapInfo {
+  optional uint64 frame_id = 1;
+
+  // reference timestamp
+  optional uint64 timestamp = 2;
+
+  optional StaticMap static_map = 3;
+}
+
+message ScenarioStaticMapInfo {
+  repeated StaticMapInfo scenario_static_map_info = 1;
+}

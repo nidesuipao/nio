@@ -1,0 +1,199 @@
+syntax = "proto2";
+
+package nio.proto;
+
+import "car_state.proto";
+import "car_info.proto";
+import "path.proto";
+
+message ControlCommand {
+  // If front_wheel is not given, assume that driver is controlling steering
+  // wheel.
+  oneof front_wheel {  // positive for left and negative for right
+    double angle = 1;  // in rad
+
+    double torque = 2;  // in Nm
+  }
+  optional double front_wheel_angle_rate = 3;  // rad/s
+
+  // If longitudinal is not given, assume that driver is controlling throttle
+  // and brake. longitudinal acceleration command in m/s^2, positive for
+  // throttle and negative for brake
+  optional double acceleration = 4;
+
+  // 0 to 1: throttle percent; -1 to 0:  braking percent.
+  optional double throttle = 5;
+
+  optional CarState.TurnSignal turn_signal = 6;
+
+  optional bool warning_blinker_signal_on = 7;
+
+  optional CarState.GearStatus gear = 8;
+
+  optional CarState.DrivingMode driving_mode = 9;
+
+  // direct cruise control is applicable for Haval
+  // NOT recommended for speed over 60km/h
+  optional double speed = 10;
+
+  // Manual-Auto mode switch;
+  // All wire control will be disabled if set to 0.
+  // Applicable for Haval;
+  optional bool auto_mode = 11;
+
+  optional bool marker_lamp = 12;
+
+  optional bool brake_light = 13;
+
+  optional bool horn = 14;
+
+  optional Misc.Beam beam = 15;
+
+  optional uint32 lon_status = 16;  // longitudinal status, for debug use
+
+  optional double ego_front_to_lead_rear =
+      17;  // ego car front bumper to leading car rear bumper
+           // scale to -1..1
+  optional double longitudinal = 18;
+  message SimpleDebug {
+    optional double lateral_error = 1;
+    optional double ref_heading = 2;
+    optional double heading = 3;
+    optional double heading_error = 4;
+    optional double heading_error_rate = 5;
+    optional double lateral_error_rate = 6;
+    optional double curvature = 7;
+    optional double steer_angle = 8;  // rad
+    optional double steer_angle_feedforward = 9;
+    optional double steer_angle_lateral_contribution = 10;
+    optional double steer_angle_lateral_rate_contribution = 11;
+    optional double steer_angle_heading_contribution = 12;
+    optional double steer_angle_heading_rate_contribution = 13;
+    optional double steer_angle_feedback = 14;
+    optional double steering_position = 15;
+    optional double ref_speed = 16;
+    optional double steer_angle_limited = 17;
+    optional double station_reference = 18;
+    optional double station_error = 19;
+    optional double speed_reference = 20;
+    optional double speed_error = 21;
+    optional double acceleration_reference = 22;
+    optional bool is_full_stop = 23;
+    optional double station_feedback = 24;
+    optional double speed = 25;
+    optional double acceleration_cmd_closeloop = 26;
+    optional double acceleration_cmd = 27;
+    optional double acceleration_lookup = 28;
+    optional double speed_lookup = 29;
+    optional double calibration_value = 30;
+    optional double steer_unconstraint_control_diff = 31;
+    optional double steer_angle_feedforward_compensation = 32;
+    repeated double matrix_q_updated = 33;  // matrix_q_updated_ size = 6
+    repeated double matrix_r_updated = 34;  // matrix_r_updated_ size = 2
+
+    // time derivative of lateral error rate, in m/s^2
+    optional double lateral_acceleration = 35;
+    // second time derivative of lateral error rate, in m/s^3
+    optional double lateral_jerk = 36;
+
+    optional double ref_heading_rate = 37;
+    optional double heading_rate = 38;
+
+    // heading_acceleration, as known as yaw acceleration, is the time
+    // derivative of heading rate,  in rad/s^2
+    optional double ref_heading_acceleration = 39;
+    optional double heading_acceleration = 40;
+    optional double heading_error_acceleration = 41;
+
+    // heading_jerk, as known as yaw jerk, is the second time derivative of
+    // heading rate, in rad/s^3
+    optional double ref_heading_jerk = 42;
+    optional double heading_jerk = 43;
+    optional double heading_error_jerk = 44;
+
+    optional double acceleration_feedback = 45;
+    optional double acceleration_error = 46;
+    optional double jerk_reference = 47;
+    optional double jerk_feedback = 48;
+    optional double jerk_error = 49;
+
+    optional double lon_position_feedback = 50;
+    optional double cur_lon_position_reference = 51;
+    optional double cur_lon_position_error = 52;
+    optional double pre_lon_position_error = 53;
+    optional double pre_speed_error = 54;
+    optional double speed_cmd_limit = 55;
+    optional double pre_speed_reference = 56;
+    optional double pre_acceleration_reference = 57;
+    optional double pre_lon_position_reference = 58;
+    optional double lon_speed_feedforward = 59;
+    optional double pre_acceleration_error = 60;
+
+    optional double steer_torque_cmd = 61;  // unit nm
+    optional double steer_torque_fb = 62;   // unit nm
+    optional double steer_torque_ff = 63;   // unit nm
+    optional double wheel_angle_ref = 64;
+    optional double wheel_angle_fb = 65;
+    optional double wheel_angle_err = 66;
+
+    optional double cur_pos_x = 67;
+    optional double cur_pos_y = 68;
+    optional double ref_pos_x = 69;
+    optional double ref_pos_y = 70;
+
+    optional double yaw_rate = 71;                          // yaw rate
+    optional double ref_yaw_rate = 72;                      // reference yaw rate
+
+    // raw signal and not filtered
+    optional double raw_speed = 73;                         // raw speed
+    optional double raw_yaw_rate = 74;                      // raw yaw rate
+    optional double raw_ref_yaw_rate = 75;                  // raw yaw rate
+    optional double raw_curvature = 76;                     // raw data curvature
+    optional double raw_nearest_lateral_error = 77;         // raw data nearest lateral error
+    optional double raw_lateral_error = 78;                 // raw data lateral error
+    optional double raw_lateral_error_rate = 79;            // raw data lateral error rate
+    optional double raw_heading_error = 80;                 // raw data heading error
+    optional double raw_heading_error_rate = 81;            // raw data heading error rate
+    optional double raw_front_wheel_angle_cmd = 82;         // raw front wheel angle cmd
+    optional double lateral_error_contribution = 83;        // lateral error contribution to steering angle
+    optional double lateral_error_rate_contribution = 84;   // lateral error rate contribution to steering angle
+    optional double heading_error_contribution = 85;        // heading error contribution to steering angle
+    optional double heading_error_rate_contribution = 86;   // heading error rate contribution to steering angle
+    optional PathPoint lon_time_preview_point = 87;         // lon preview tracking point
+    optional double preview_dist = 88;                      // preview distance
+    optional PathPoint lat_dist_preview_point = 89;         // lat preview tracking point
+    optional double yawrate_hat = 90;                       // yaw rate estimation from observer
+    optional double yawrate_raw_chassis = 91;               // yaw rate chassis
+    optional double yawrate_imu = 92;                       // yaw rate imu
+    optional double slip_angle_hat = 93;                    // slip angle from observer
+    optional double slip_angle_simulation = 94;             // ratio*lateral_acc
+    optional double slip_angle_raw = 95;                    // default 0
+    optional double front_wheel_angle = 96;                 // default 0
+    optional double lateral_acceleration_imu = 97;
+    optional double steering_ratio = 98;
+    optional double ct1 = 99;
+    optional double ct2 = 100;
+    optional double ct3 = 101;
+    optional Path debug_path = 102;
+
+    optional bool enable_yawrate_integration_compensation = 103;
+    optional double yawrate_integration_ki = 104;
+    optional double yawrate_integration_contribution = 105;
+
+    optional PathPoint nearest_target_point = 106;
+    optional double raw_nearest_heading_error = 107;
+    optional double position_err_filter = 108;
+    optional double position_err_smooth = 109;
+    optional double speed_err_filter = 110;
+    optional double speed_err_smooth = 111;
+
+    optional double hand_torque_filter = 112;
+    optional int32 yaw_rate_integration_hold = 113;
+
+    optional double offset_to_map = 114; //offset to map centerline
+  }
+  optional SimpleDebug simple_debug = 19;
+  optional uint64 time_meas = 20;
+  optional uint64 time_pub = 21;
+  optional bool controller_status = 22;
+}

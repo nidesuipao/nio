@@ -1,0 +1,464 @@
+syntax = "proto2";
+
+package nio.proto.eq4;
+
+message Core_Lanes_Support_protocol {
+  optional double ls_zero_byte = 1;
+  optional double ls_protocol_version = 2;
+  optional double ls_sync_id = 3;
+  optional double ls_adjacent_number = 4;
+  optional bool LS_CA_Is_Construction_Area = 5;
+  optional double reserved_1 = 6;
+  optional double ls_host_estimated_width = 7;
+  optional double ls_header_buffer = 8;
+  optional double ls_host_crc = 9;
+  optional bool LS_Host_L_Valid = 10;
+  enum LS_Host_L_Is_Triggered_SDM {
+    LS_Host_L_Is_Triggered_SDM_NOT_AVAILABLE = 0;
+    LS_Host_L_Is_Triggered_SDM_TRIGGERED = 1;
+    LS_Host_L_Is_Triggered_SDM_NOT_TRIGGERED = 2;
+  }
+  optional  LS_Host_L_Is_Triggered_SDM ls_host_l_is_triggered_sdm  = 11;
+  optional double ls_host_l_track_id = 12;
+  optional double ls_host_l_age = 13;
+  optional double ls_host_l_existence_probability = 14;
+  optional double ls_host_l_prediction_source = 15;
+  optional double ls_host_l_prediction_type = 16;
+  enum LS_Host_L_Color {
+    LS_Host_L_Color_UNDECIDED = 0;
+    LS_Host_L_Color_WHITE = 1;
+    LS_Host_L_Color_YELLOW_ORANGE_RED = 2;
+    LS_Host_L_Color_BLUE_GREEN = 3;
+  }
+  optional  LS_Host_L_Color ls_host_l_color  = 17;
+  optional double ls_host_l_color_confidence = 18;
+  enum LS_Host_L_Type_Classification {
+    LS_Host_L_Type_Classification_UNDECIDED = 0;
+    LS_Host_L_Type_Classification_SOLID = 1;
+    LS_Host_L_Type_Classification_DASHED = 2;
+    LS_Host_L_Type_Classification_DLM = 3;
+    LS_Host_L_Type_Classification_BOTTS = 4;
+    LS_Host_L_Type_Classification_DECELERATION = 5;
+    LS_Host_L_Type_Classification_HOV_LANE = 6;
+  }
+  optional  LS_Host_L_Type_Classification ls_host_l_type_classification  = 19;
+  optional double ls_host_l_type_confidence = 20;
+  enum LS_Host_L_DLM_Type {
+    LS_Host_L_DLM_Type_NOT_DLM = 0;
+    LS_Host_L_DLM_Type_SOLID_DASHED = 1;
+    LS_Host_L_DLM_Type_DASHED_SOLID = 2;
+    LS_Host_L_DLM_Type_SOLID_SOLID = 3;
+    LS_Host_L_DLM_Type_DASHED_DASHED = 4;
+    LS_Host_L_DLM_Type_UNDECIDED = 5;
+  }
+  optional  LS_Host_L_DLM_Type ls_host_l_dlm_type  = 21;
+  enum LS_Host_L_DECEL_Type {
+    LS_Host_L_DECEL_Type_NO_DECEL = 0;
+    LS_Host_L_DECEL_Type_SOLID = 1;
+    LS_Host_L_DECEL_Type_DASHED = 2;
+    LS_Host_L_DECEL_Type_RESERVED_1 = 3;
+    LS_Host_L_DECEL_Type_RESERVED_2 = 4;
+    LS_Host_L_DECEL_Type_RESERVED_3 = 5;
+  }
+  optional  LS_Host_L_DECEL_Type ls_host_l_decel_type  = 22;
+  optional double reserved_2 = 23;
+  optional double ls_host_l_view_range_start = 24;
+  optional double ls_host_l_view_range_end = 25;
+  optional double reserved_3 = 26;
+  optional double ls_host_l_measured_vr_end = 27;
+  optional bool LS_Host_L_Crossing = 28;
+  optional double ls_host_l_marker_width = 29;
+  optional double ls_host_l_marker_width_std = 30;
+  optional double reserved_4 = 31;
+  optional double ls_host_l_dash_average_length = 32;
+  optional double ls_host_l_dash_average_gap = 33;
+  optional double reserved_5 = 34;
+  optional double ls_host_l_line_c0 = 35;
+  optional double ls_host_l_line_c0_std = 36;
+  optional double ls_host_l_line_c1_std = 37;
+  optional double reserved_6 = 38;
+  optional double ls_host_l_line_c1 = 39;
+  optional double ls_host_l_line_c2 = 40;
+  optional double ls_host_l_line_c2_std = 41;
+  optional double ls_host_l_line_c3_std = 42;
+  optional double ls_host_l_line_c3 = 43;
+  optional bool LS_Host_R_Valid = 44;
+  enum LS_Host_R_Is_Triggered_SDM {
+    LS_Host_R_Is_Triggered_SDM_NOT_AVAILABLE = 0;
+    LS_Host_R_Is_Triggered_SDM_TRIGGERED = 1;
+    LS_Host_R_Is_Triggered_SDM_NOT_TRIGGERED = 2;
+  }
+  optional  LS_Host_R_Is_Triggered_SDM ls_host_r_is_triggered_sdm  = 45;
+  optional double ls_host_r_track_id = 46;
+  optional double ls_host_r_age = 47;
+  optional double ls_host_r_existence_probability = 48;
+  optional double ls_host_r_prediction_source = 49;
+  optional double ls_host_r_prediction_type = 50;
+  enum LS_Host_R_Color {
+    LS_Host_R_Color_UNDECIDED = 0;
+    LS_Host_R_Color_WHITE = 1;
+    LS_Host_R_Color_YELLOW_ORANGE_RED = 2;
+    LS_Host_R_Color_BLUE_GREEN = 3;
+  }
+  optional  LS_Host_R_Color ls_host_r_color  = 51;
+  optional double ls_host_r_color_confidence = 52;
+  enum LS_Host_R_Type_Classification {
+    LS_Host_R_Type_Classification_UNDECIDED = 0;
+    LS_Host_R_Type_Classification_SOLID = 1;
+    LS_Host_R_Type_Classification_DASHED = 2;
+    LS_Host_R_Type_Classification_DLM = 3;
+    LS_Host_R_Type_Classification_BOTTS = 4;
+    LS_Host_R_Type_Classification_DECELERATION = 5;
+    LS_Host_R_Type_Classification_HOV_LANE = 6;
+  }
+  optional  LS_Host_R_Type_Classification ls_host_r_type_classification  = 53;
+  optional double ls_host_r_type_confidence = 54;
+  enum LS_Host_R_DLM_Type {
+    LS_Host_R_DLM_Type_NOT_DLM = 0;
+    LS_Host_R_DLM_Type_SOLID_DASHED = 1;
+    LS_Host_R_DLM_Type_DASHED_SOLID = 2;
+    LS_Host_R_DLM_Type_SOLID_SOLID = 3;
+    LS_Host_R_DLM_Type_DASHED_DASHED = 4;
+    LS_Host_R_DLM_Type_UNDECIDED = 5;
+  }
+  optional  LS_Host_R_DLM_Type ls_host_r_dlm_type  = 55;
+  enum LS_Host_R_DECEL_Type {
+    LS_Host_R_DECEL_Type_NO_DECEL = 0;
+    LS_Host_R_DECEL_Type_SOLID = 1;
+    LS_Host_R_DECEL_Type_DASHED = 2;
+    LS_Host_R_DECEL_Type_RESERVED_1 = 3;
+    LS_Host_R_DECEL_Type_RESERVED_2 = 4;
+    LS_Host_R_DECEL_Type_RESERVED_3 = 5;
+  }
+  optional  LS_Host_R_DECEL_Type ls_host_r_decel_type  = 56;
+  optional double reserved_7 = 57;
+  optional double ls_host_r_view_range_start = 58;
+  optional double ls_host_r_view_range_end = 59;
+  optional double reserved_8 = 60;
+  optional double ls_host_r_measured_vr_end = 61;
+  optional bool LS_Host_R_Crossing = 62;
+  optional double ls_host_r_marker_width = 63;
+  optional double ls_host_r_marker_width_std = 64;
+  optional double reserved_9 = 65;
+  optional double ls_host_r_dash_average_length = 66;
+  optional double ls_host_r_dash_average_gap = 67;
+  optional double reserved_10 = 68;
+  optional double ls_host_r_line_c0 = 69;
+  optional double ls_host_r_line_c0_std = 70;
+  optional double ls_host_r_line_c1_std = 71;
+  optional double reserved_11 = 72;
+  optional double ls_host_r_line_c1 = 73;
+  optional double ls_host_r_line_c2 = 74;
+  optional double ls_host_r_line_c2_std = 75;
+  optional double ls_host_r_line_c3_std = 76;
+  optional double ls_host_r_line_c3 = 77;
+  optional double ls_adjacent_lane_track_id_0 = 78;
+  optional double ls_adjacent_age_0 = 79;
+  optional double ls_adjacent_exist_probability_0 = 80;
+  enum LS_Adjacent_Color_0 {
+    LS_Adjacent_Color_0_UNDECIDED = 0;
+    LS_Adjacent_Color_0_WHITE = 1;
+    LS_Adjacent_Color_0_YELLOW_ORANGE_RED = 2;
+    LS_Adjacent_Color_0_BLUE_GREEN = 3;
+  }
+  optional  LS_Adjacent_Color_0 ls_adjacent_color_0  = 81;
+  optional double ls_adjacent_color_conf_0 = 82;
+  enum LS_Adjacent_Prediction_Type_0 {
+    LS_Adjacent_Prediction_Type_0_NONE = 0;
+    LS_Adjacent_Prediction_Type_0_FULL = 1;
+  }
+  optional  LS_Adjacent_Prediction_Type_0 ls_adjacent_prediction_type_0  = 83;
+  enum LS_Adjacent_Prediction_Source_0 {
+    LS_Adjacent_Prediction_Source_0_NONE = 0;
+    LS_Adjacent_Prediction_Source_0_LOSS = 1;
+  }
+  optional  LS_Adjacent_Prediction_Source_0 ls_adjacent_prediction_source_0  = 84;
+  optional double ls_adjacent_view_range_start_0 = 85;
+  optional double ls_adjacent_view_range_end_0 = 86;
+  optional double ls_adjacent_measured_vr_end_0 = 87;
+  enum LS_Adjacent_Type_Class_0 {
+    LS_Adjacent_Type_Class_0_UNDECIDED = 0;
+    LS_Adjacent_Type_Class_0_SOLID = 1;
+    LS_Adjacent_Type_Class_0_DASHED = 2;
+    LS_Adjacent_Type_Class_0_DLM = 3;
+    LS_Adjacent_Type_Class_0_BOTTS = 4;
+    LS_Adjacent_Type_Class_0_HOV_LANE = 5;
+  }
+  optional  LS_Adjacent_Type_Class_0 ls_adjacent_type_class_0  = 88;
+  optional double ls_adjacent_type_conf_0 = 89;
+  enum LS_Adjacent_DLM_Type_0 {
+    LS_Adjacent_DLM_Type_0_NOT_DLM = 0;
+    LS_Adjacent_DLM_Type_0_SOLID_DASHED = 1;
+    LS_Adjacent_DLM_Type_0_DASHED_SOLID = 2;
+    LS_Adjacent_DLM_Type_0_SOLID_SOLID = 3;
+    LS_Adjacent_DLM_Type_0_DASHED_DASHED = 4;
+    LS_Adjacent_DLM_Type_0_UNDECIDED = 5;
+  }
+  optional  LS_Adjacent_DLM_Type_0 ls_adjacent_dlm_type_0  = 90;
+  optional double reserved_12 = 91;
+  enum LS_Adjacent_Line_Role_0 {
+    LS_Adjacent_Line_Role_0_NONE = 0;
+    LS_Adjacent_Line_Role_0_NA_1 = 1;
+    LS_Adjacent_Line_Role_0_NA_2 = 2;
+    LS_Adjacent_Line_Role_0_NEXT_LEFT__LEFT_LANEMARK = 3;
+    LS_Adjacent_Line_Role_0_NEXT_LEFT__RIGHT_LANEMARK = 4;
+    LS_Adjacent_Line_Role_0_NEXT_RIGHT__LEFT_LANEMARK = 5;
+    LS_Adjacent_Line_Role_0_NEXT_RIGHT__RIGHT_LANEMARK = 6;
+    LS_Adjacent_Line_Role_0_NA_3 = 7;
+    LS_Adjacent_Line_Role_0_NA_4 = 8;
+    LS_Adjacent_Line_Role_0_RESERVED_1 = 9;
+    LS_Adjacent_Line_Role_0_RESERVED_2 = 10;
+    LS_Adjacent_Line_Role_0_RESERVED_3 = 11;
+    LS_Adjacent_Line_Role_0_RESERVED_4 = 12;
+    LS_Adjacent_Line_Role_0_RESERVED_0 = 13;
+    LS_Adjacent_Line_Role_0_RESERVED_6 = 14;
+    LS_Adjacent_Line_Role_0_RESERVED_7 = 15;
+  }
+  optional  LS_Adjacent_Line_Role_0 ls_adjacent_line_role_0  = 92;
+  optional double ls_adjacent_marker_width_0 = 93;
+  optional double ls_adjacent_marker_width_std_0 = 94;
+  optional double reserved_13 = 95;
+  optional double ls_adjacent_line_c3_std_0 = 96;
+  optional double reserved_14 = 97;
+  optional double ls_adjacent_line_c3_0 = 98;
+  optional double ls_adjacent_line_c2_0 = 99;
+  optional double ls_adjacent_line_c2_std_0 = 100;
+  optional double ls_adjacent_line_c1_std_0 = 101;
+  optional double reserved_15 = 102;
+  optional double ls_adjacent_line_c1_0 = 103;
+  optional double ls_adjacent_line_c0_0 = 104;
+  optional double ls_adjacent_line_c0_std_0 = 105;
+  optional double ls_adjacent_buffer_0 = 106;
+  optional double ls_adjacent_lane_track_id_1 = 107;
+  optional double ls_adjacent_age_1 = 108;
+  optional double ls_adjacent_exist_probability_1 = 109;
+  enum LS_Adjacent_Color_1 {
+    LS_Adjacent_Color_1_UNDECIDED = 0;
+    LS_Adjacent_Color_1_WHITE = 1;
+    LS_Adjacent_Color_1_YELLOW_ORANGE_RED = 2;
+    LS_Adjacent_Color_1_BLUE_GREEN = 3;
+  }
+  optional  LS_Adjacent_Color_1 ls_adjacent_color_1  = 110;
+  optional double ls_adjacent_color_conf_1 = 111;
+  enum LS_Adjacent_Prediction_Type_1 {
+    LS_Adjacent_Prediction_Type_1_NONE = 0;
+    LS_Adjacent_Prediction_Type_1_FULL = 1;
+  }
+  optional  LS_Adjacent_Prediction_Type_1 ls_adjacent_prediction_type_1  = 112;
+  enum LS_Adjacent_Prediction_Source_1 {
+    LS_Adjacent_Prediction_Source_1_NONE = 0;
+    LS_Adjacent_Prediction_Source_1_LOSS = 1;
+  }
+  optional  LS_Adjacent_Prediction_Source_1 ls_adjacent_prediction_source_1  = 113;
+  optional double ls_adjacent_view_range_start_1 = 114;
+  optional double ls_adjacent_view_range_end_1 = 115;
+  optional double ls_adjacent_measured_vr_end_1 = 116;
+  enum LS_Adjacent_Type_Class_1 {
+    LS_Adjacent_Type_Class_1_UNDECIDED = 0;
+    LS_Adjacent_Type_Class_1_SOLID = 1;
+    LS_Adjacent_Type_Class_1_DASHED = 2;
+    LS_Adjacent_Type_Class_1_DLM = 3;
+    LS_Adjacent_Type_Class_1_BOTTS = 4;
+    LS_Adjacent_Type_Class_1_HOV_LANE = 5;
+  }
+  optional  LS_Adjacent_Type_Class_1 ls_adjacent_type_class_1  = 117;
+  optional double ls_adjacent_type_conf_1 = 118;
+  enum LS_Adjacent_DLM_Type_1 {
+    LS_Adjacent_DLM_Type_1_NOT_DLM = 0;
+    LS_Adjacent_DLM_Type_1_SOLID_DASHED = 1;
+    LS_Adjacent_DLM_Type_1_DASHED_SOLID = 2;
+    LS_Adjacent_DLM_Type_1_SOLID_SOLID = 3;
+    LS_Adjacent_DLM_Type_1_DASHED_DASHED = 4;
+    LS_Adjacent_DLM_Type_1_UNDECIDED = 5;
+  }
+  optional  LS_Adjacent_DLM_Type_1 ls_adjacent_dlm_type_1  = 119;
+  optional double reserved_16 = 120;
+  enum LS_Adjacent_Line_Role_1 {
+    LS_Adjacent_Line_Role_1_NONE = 0;
+    LS_Adjacent_Line_Role_1_NA_1 = 1;
+    LS_Adjacent_Line_Role_1_NA_2 = 2;
+    LS_Adjacent_Line_Role_1_NEXT_LEFT__LEFT_LANEMARK = 3;
+    LS_Adjacent_Line_Role_1_NEXT_LEFT__RIGHT_LANEMARK = 4;
+    LS_Adjacent_Line_Role_1_NEXT_RIGHT__LEFT_LANEMARK = 5;
+    LS_Adjacent_Line_Role_1_NEXT_RIGHT__RIGHT_LANEMARK = 6;
+    LS_Adjacent_Line_Role_1_NA_3 = 7;
+    LS_Adjacent_Line_Role_1_NA_4 = 8;
+    LS_Adjacent_Line_Role_1_RESERVED_1 = 9;
+    LS_Adjacent_Line_Role_1_RESERVED_2 = 10;
+    LS_Adjacent_Line_Role_1_RESERVED_3 = 11;
+    LS_Adjacent_Line_Role_1_RESERVED_4 = 12;
+    LS_Adjacent_Line_Role_1_RESERVED_0 = 13;
+    LS_Adjacent_Line_Role_1_RESERVED_6 = 14;
+    LS_Adjacent_Line_Role_1_RESERVED_7 = 15;
+  }
+  optional  LS_Adjacent_Line_Role_1 ls_adjacent_line_role_1  = 121;
+  optional double ls_adjacent_marker_width_1 = 122;
+  optional double ls_adjacent_marker_width_std_1 = 123;
+  optional double reserved_17 = 124;
+  optional double ls_adjacent_line_c3_std_1 = 125;
+  optional double reserved_18 = 126;
+  optional double ls_adjacent_line_c3_1 = 127;
+  optional double ls_adjacent_line_c2_1 = 128;
+  optional double ls_adjacent_line_c2_std_1 = 129;
+  optional double ls_adjacent_line_c1_std_1 = 130;
+  optional double reserved_19 = 131;
+  optional double ls_adjacent_line_c1_1 = 132;
+  optional double ls_adjacent_line_c0_1 = 133;
+  optional double ls_adjacent_line_c0_std_1 = 134;
+  optional double ls_adjacent_buffer_1 = 135;
+  optional double ls_adjacent_lane_track_id_2 = 136;
+  optional double ls_adjacent_age_2 = 137;
+  optional double ls_adjacent_exist_probability_2 = 138;
+  enum LS_Adjacent_Color_2 {
+    LS_Adjacent_Color_2_UNDECIDED = 0;
+    LS_Adjacent_Color_2_WHITE = 1;
+    LS_Adjacent_Color_2_YELLOW_ORANGE_RED = 2;
+    LS_Adjacent_Color_2_BLUE_GREEN = 3;
+  }
+  optional  LS_Adjacent_Color_2 ls_adjacent_color_2  = 139;
+  optional double ls_adjacent_color_conf_2 = 140;
+  enum LS_Adjacent_Prediction_Type_2 {
+    LS_Adjacent_Prediction_Type_2_NONE = 0;
+    LS_Adjacent_Prediction_Type_2_FULL = 1;
+  }
+  optional  LS_Adjacent_Prediction_Type_2 ls_adjacent_prediction_type_2  = 141;
+  enum LS_Adjacent_Prediction_Source_2 {
+    LS_Adjacent_Prediction_Source_2_NONE = 0;
+    LS_Adjacent_Prediction_Source_2_LOSS = 1;
+  }
+  optional  LS_Adjacent_Prediction_Source_2 ls_adjacent_prediction_source_2  = 142;
+  optional double ls_adjacent_view_range_start_2 = 143;
+  optional double ls_adjacent_view_range_end_2 = 144;
+  optional double ls_adjacent_measured_vr_end_2 = 145;
+  enum LS_Adjacent_Type_Class_2 {
+    LS_Adjacent_Type_Class_2_UNDECIDED = 0;
+    LS_Adjacent_Type_Class_2_SOLID = 1;
+    LS_Adjacent_Type_Class_2_DASHED = 2;
+    LS_Adjacent_Type_Class_2_DLM = 3;
+    LS_Adjacent_Type_Class_2_BOTTS = 4;
+    LS_Adjacent_Type_Class_2_HOV_LANE = 5;
+  }
+  optional  LS_Adjacent_Type_Class_2 ls_adjacent_type_class_2  = 146;
+  optional double ls_adjacent_type_conf_2 = 147;
+  enum LS_Adjacent_DLM_Type_2 {
+    LS_Adjacent_DLM_Type_2_NOT_DLM = 0;
+    LS_Adjacent_DLM_Type_2_SOLID_DASHED = 1;
+    LS_Adjacent_DLM_Type_2_DASHED_SOLID = 2;
+    LS_Adjacent_DLM_Type_2_SOLID_SOLID = 3;
+    LS_Adjacent_DLM_Type_2_DASHED_DASHED = 4;
+    LS_Adjacent_DLM_Type_2_UNDECIDED = 5;
+  }
+  optional  LS_Adjacent_DLM_Type_2 ls_adjacent_dlm_type_2  = 148;
+  optional double reserved_20 = 149;
+  enum LS_Adjacent_Line_Role_2 {
+    LS_Adjacent_Line_Role_2_NONE = 0;
+    LS_Adjacent_Line_Role_2_NA_1 = 1;
+    LS_Adjacent_Line_Role_2_NA_2 = 2;
+    LS_Adjacent_Line_Role_2_NEXT_LEFT__LEFT_LANEMARK = 3;
+    LS_Adjacent_Line_Role_2_NEXT_LEFT__RIGHT_LANEMARK = 4;
+    LS_Adjacent_Line_Role_2_NEXT_RIGHT__LEFT_LANEMARK = 5;
+    LS_Adjacent_Line_Role_2_NEXT_RIGHT__RIGHT_LANEMARK = 6;
+    LS_Adjacent_Line_Role_2_NA_3 = 7;
+    LS_Adjacent_Line_Role_2_NA_4 = 8;
+    LS_Adjacent_Line_Role_2_RESERVED_1 = 9;
+    LS_Adjacent_Line_Role_2_RESERVED_2 = 10;
+    LS_Adjacent_Line_Role_2_RESERVED_3 = 11;
+    LS_Adjacent_Line_Role_2_RESERVED_4 = 12;
+    LS_Adjacent_Line_Role_2_RESERVED_0 = 13;
+    LS_Adjacent_Line_Role_2_RESERVED_6 = 14;
+    LS_Adjacent_Line_Role_2_RESERVED_7 = 15;
+  }
+  optional  LS_Adjacent_Line_Role_2 ls_adjacent_line_role_2  = 150;
+  optional double ls_adjacent_marker_width_2 = 151;
+  optional double ls_adjacent_marker_width_std_2 = 152;
+  optional double reserved_21 = 153;
+  optional double ls_adjacent_line_c3_std_2 = 154;
+  optional double reserved_22 = 155;
+  optional double ls_adjacent_line_c3_2 = 156;
+  optional double ls_adjacent_line_c2_2 = 157;
+  optional double ls_adjacent_line_c2_std_2 = 158;
+  optional double ls_adjacent_line_c1_std_2 = 159;
+  optional double reserved_23 = 160;
+  optional double ls_adjacent_line_c1_2 = 161;
+  optional double ls_adjacent_line_c0_2 = 162;
+  optional double ls_adjacent_line_c0_std_2 = 163;
+  optional double ls_adjacent_buffer_2 = 164;
+  optional double ls_adjacent_lane_track_id_3 = 165;
+  optional double ls_adjacent_age_3 = 166;
+  optional double ls_adjacent_exist_probability_3 = 167;
+  enum LS_Adjacent_Color_3 {
+    LS_Adjacent_Color_3_UNDECIDED = 0;
+    LS_Adjacent_Color_3_WHITE = 1;
+    LS_Adjacent_Color_3_YELLOW_ORANGE_RED = 2;
+    LS_Adjacent_Color_3_BLUE_GREEN = 3;
+  }
+  optional  LS_Adjacent_Color_3 ls_adjacent_color_3  = 168;
+  optional double ls_adjacent_color_conf_3 = 169;
+  enum LS_Adjacent_Prediction_Type_3 {
+    LS_Adjacent_Prediction_Type_3_NONE = 0;
+    LS_Adjacent_Prediction_Type_3_FULL = 1;
+  }
+  optional  LS_Adjacent_Prediction_Type_3 ls_adjacent_prediction_type_3  = 170;
+  enum LS_Adjacent_Prediction_Source_3 {
+    LS_Adjacent_Prediction_Source_3_NONE = 0;
+    LS_Adjacent_Prediction_Source_3_LOSS = 1;
+  }
+  optional  LS_Adjacent_Prediction_Source_3 ls_adjacent_prediction_source_3  = 171;
+  optional double ls_adjacent_view_range_start_3 = 172;
+  optional double ls_adjacent_view_range_end_3 = 173;
+  optional double ls_adjacent_measured_vr_end_3 = 174;
+  enum LS_Adjacent_Type_Class_3 {
+    LS_Adjacent_Type_Class_3_UNDECIDED = 0;
+    LS_Adjacent_Type_Class_3_SOLID = 1;
+    LS_Adjacent_Type_Class_3_DASHED = 2;
+    LS_Adjacent_Type_Class_3_DLM = 3;
+    LS_Adjacent_Type_Class_3_BOTTS = 4;
+    LS_Adjacent_Type_Class_3_HOV_LANE = 5;
+  }
+  optional  LS_Adjacent_Type_Class_3 ls_adjacent_type_class_3  = 175;
+  optional double ls_adjacent_type_conf_3 = 176;
+  enum LS_Adjacent_DLM_Type_3 {
+    LS_Adjacent_DLM_Type_3_NOT_DLM = 0;
+    LS_Adjacent_DLM_Type_3_SOLID_DASHED = 1;
+    LS_Adjacent_DLM_Type_3_DASHED_SOLID = 2;
+    LS_Adjacent_DLM_Type_3_SOLID_SOLID = 3;
+    LS_Adjacent_DLM_Type_3_DASHED_DASHED = 4;
+    LS_Adjacent_DLM_Type_3_UNDECIDED = 5;
+  }
+  optional  LS_Adjacent_DLM_Type_3 ls_adjacent_dlm_type_3  = 177;
+  optional double reserved_24 = 178;
+  enum LS_Adjacent_Line_Role_3 {
+    LS_Adjacent_Line_Role_3_NONE = 0;
+    LS_Adjacent_Line_Role_3_NA_1 = 1;
+    LS_Adjacent_Line_Role_3_NA_2 = 2;
+    LS_Adjacent_Line_Role_3_NEXT_LEFT__LEFT_LANEMARK = 3;
+    LS_Adjacent_Line_Role_3_NEXT_LEFT__RIGHT_LANEMARK = 4;
+    LS_Adjacent_Line_Role_3_NEXT_RIGHT__LEFT_LANEMARK = 5;
+    LS_Adjacent_Line_Role_3_NEXT_RIGHT__RIGHT_LANEMARK = 6;
+    LS_Adjacent_Line_Role_3_NA_3 = 7;
+    LS_Adjacent_Line_Role_3_NA_4 = 8;
+    LS_Adjacent_Line_Role_3_RESERVED_1 = 9;
+    LS_Adjacent_Line_Role_3_RESERVED_2 = 10;
+    LS_Adjacent_Line_Role_3_RESERVED_3 = 11;
+    LS_Adjacent_Line_Role_3_RESERVED_4 = 12;
+    LS_Adjacent_Line_Role_3_RESERVED_0 = 13;
+    LS_Adjacent_Line_Role_3_RESERVED_6 = 14;
+    LS_Adjacent_Line_Role_3_RESERVED_7 = 15;
+  }
+  optional  LS_Adjacent_Line_Role_3 ls_adjacent_line_role_3  = 179;
+  optional double ls_adjacent_marker_width_3 = 180;
+  optional double ls_adjacent_marker_width_std_3 = 181;
+  optional double reserved_25 = 182;
+  optional double ls_adjacent_line_c3_std_3 = 183;
+  optional double reserved_26 = 184;
+  optional double ls_adjacent_line_c3_3 = 185;
+  optional double ls_adjacent_line_c2_3 = 186;
+  optional double ls_adjacent_line_c2_std_3 = 187;
+  optional double ls_adjacent_line_c1_std_3 = 188;
+  optional double reserved_27 = 189;
+  optional double ls_adjacent_line_c1_3 = 190;
+  optional double ls_adjacent_line_c0_3 = 191;
+  optional double ls_adjacent_line_c0_std_3 = 192;
+  optional double ls_adjacent_buffer_3 = 193;
+  optional uint64 time_pub = 194;
+}

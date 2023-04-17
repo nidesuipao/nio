@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+package nio.proto;
+import "road_map.proto";
+
+message VirtualLane{
+// TODO by wll.chen
+}
+
+message GridMap{
+//TODO by kendrick.li
+}
+
+// DynamicMap is a limited-range map extracted from StaticMap,
+// and is integrated by realtime object detection.
+// DynamicMap is always centered on the ego car.
+message DynamicMap{
+    optional uint64 time_pub = 1;
+    optional RoadMap map = 2;   // 400m * 400m range
+    optional GridMap grid_map = 3; // NOT USED for now, 20211230
+    optional VirtualLane v_lane = 4; // NOT USED for now, 20211230
+    // repeated Lane virtual_lane = 4;
+}

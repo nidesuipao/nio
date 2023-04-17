@@ -1,0 +1,59 @@
+ syntax = "proto2";
+ package nio.proto;
+
+ message LaneList{
+     optional uint32 LL_LANE_NUM = 1; // maximum 32 lines
+     repeated PointList LL_Lane_List = 2;
+     
+     // When this message was published. In nanoseconds.
+     optional uint64 time_pub = 3;
+
+     // When the measurements were made. In nanoseconds.
+     optional uint64 time_meas = 4;
+
+     // 640 x 360 image to show on NUC
+     optional string image_data = 5;
+ }
+
+ message PointList{
+     optional uint32 PL_POINT_NUM = 1; // maximum 300 points are supported
+     repeated Point PL_Points_List = 2;
+     optional LineProperty PL_Line_Property = 3;
+ }
+
+ message Point {
+     optional float LD_Point_x = 1; // x_pixel in the picture
+     optional float LD_Point_y = 2; // y_pixel in the picture
+ }
+
+ message LineProperty {
+     optional LDType LD_Type = 1;
+     optional LDColor LD_Color = 2;
+     optional LDClass LD_Class = 3;
+
+     enum LDType{
+         LDType_Unknown = 0; // unavailable
+         LDType_Solid = 1;
+         LDType_Dash = 2;
+         LDType_Solid_Dash = 3; // unavailable
+         LDType_Dash_Solid = 4; // unavailable
+         LDType_Solid_Solid = 5; // unavailable
+         LDType_Deceleration_Dash = 6; // unavailable
+         LDType_Deceleration_Solid = 7; // unavailable
+     }
+
+     enum LDColor{
+         LDColor_Unknown = 0;  // unavailable
+         LDColor_White = 1;
+         LDColor_Yellow = 2;
+         LDColor_Orange = 3;  // unavailable
+         LDColor_Blue = 4;  // unavailable
+         LDColor_Others = 5;  // unavailable
+     }
+
+     enum LDClass{
+         LDClass_Line = 0;
+         LDClass_Curb = 1;
+         LDClass_StopLine = 2;
+     }
+ }

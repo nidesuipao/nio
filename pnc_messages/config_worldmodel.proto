@@ -1,0 +1,8 @@
+
+syntax = "proto2";
+
+package nio.proto;
+message ConfigWorldModel{
+    optional string map_folder = 1;
+    optional double lookup_radius = 2;
+}

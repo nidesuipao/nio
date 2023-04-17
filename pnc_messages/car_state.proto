@@ -1,0 +1,106 @@
+syntax = "proto2";
+
+package nio.proto;
+
+import "geometry.proto";
+import "pose.proto";
+
+message WheelSpeed {
+  enum WheelSpeedType {
+    FORWARD = 0;
+    BACKWARD = 1;
+    STANDSTILL = 2;
+    INVALID = 3;
+  }
+  optional fixed64 measurement_time = 1;
+  optional bool is_wheel_spd_rr_valid = 2 [default = false];
+  optional WheelSpeedType wheel_direction_rr = 3 [default = INVALID];
+  optional double wheel_spd_rr = 4 [default = 0.0];
+  optional bool is_wheel_spd_rl_valid = 5 [default = false];
+  optional WheelSpeedType wheel_direction_rl = 6 [default = INVALID];
+  optional double wheel_spd_rl = 7 [default = 0.0];
+  optional bool is_wheel_spd_fr_valid = 8 [default = false];
+  optional WheelSpeedType wheel_direction_fr = 9 [default = INVALID];
+  optional double wheel_spd_fr = 10 [default = 0.0];
+  optional bool is_wheel_spd_fl_valid = 11 [default = false];
+  optional WheelSpeedType wheel_direction_fl = 12 [default = INVALID];
+  optional double wheel_spd_fl = 13 [default = 0.0];
+}
+
+message CarState {
+  optional uint64 time_meas = 1;  // in ns
+
+  // Position of the vehicle in map frame in m.
+  optional Vector3d position = 2;
+
+  // Velocity of the vehicle in map frame in m/s.
+  optional Vector3d velocity_enu = 3;
+
+  // Velocity of the vehicle in vehicle frame in m/s.
+  optional Vector3d velocity_flu = 4;
+
+  // Euler angles of roll, pitch, yaw in rad (intrinsic sequence z-y-x).
+  // Yaw is 0 when the car points to east, pi/2 when the car points to north.
+  optional Vector3d roll_pitch_yaw = 5;
+
+  optional Vector3d angular_velocity_flu = 6;  // in rad/s
+
+  optional Vector3d acceleration_flu = 7;  // in m/s^2
+
+  optional double front_wheel_angle = 8;  // in rad
+
+  optional double speed = 9;  // Vehicle speed, in m/s.
+
+  //  turn signal status
+  enum TurnSignal {
+    NONE_TURN = 0;
+    LEFT = 1;
+    RIGHT = 2;
+    TIP_LEFT = 3;
+    TIP_RIGHT = 4;
+  }
+  optional TurnSignal turn_signal = 10;
+
+  // warning blinker status
+  optional bool warning_blinker_on = 11;
+
+  enum GearStatus {
+    INVALID = 0;
+    PARK = 1;
+    REVERSE = 2;
+    NEUTRAL = 3;
+    DRIVE = 4;
+    LOW = 5;
+    UNSPECIFIED = 6;
+  }
+  optional GearStatus gear = 12;
+
+  enum DrivingMode {
+    MANUAL = 0;
+    LONGITUDINAL_AUTO = 1;
+    LATERAL_AUTO = 2;
+    AUTO = 3;
+  }
+  optional DrivingMode driving_mode = 13;
+
+  optional double acceleration_over_ground = 14;
+
+  optional double longitudinal = 15;                      // in used, longitudinal command in [-1, 1]
+  optional WheelSpeed wheel_speed = 16;
+  optional double yaw_rate = 17;
+  optional double lateral_acceleration = 18;
+  optional double longitudinal_acceleration = 19;
+
+  optional Pose.PoseType localization_status = 20;
+  optional double localization_confidence = 21;
+
+  optional double chassis_speed = 22;  // chassis speed get from CAN, unit m/s
+}
+message VehicleSignal {
+  optional CarState.TurnSignal turn_signal = 1;
+  // lights enable command
+  optional bool high_beam = 2;
+  optional bool low_beam = 3;
+  optional bool horn = 4;
+  optional bool emergency_light = 5;
+}

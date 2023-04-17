@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+package nio.proto;
+
+import "geometry.proto";
+
+message ChannelMapping {
+  optional bytes channel_name = 1;
+  optional int32 row_index = 2;
+  optional int32 channel_size = 3;
+}
+
+message MapDataStorage {
+  optional int32 rows = 1;
+  optional int32 columns = 2;
+  repeated ChannelMapping channel_mapping = 3;
+  repeated double float_data = 4 [packed = true];
+  optional Transformation3d origin = 99;
+}

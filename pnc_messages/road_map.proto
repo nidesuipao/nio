@@ -1,0 +1,508 @@
+syntax = "proto2";
+
+package nio.proto;
+
+import "geometry.proto";
+import "map_projection.proto";
+
+
+// All id's should be universally unique.
+
+message LaneBoundary {
+  optional uint64 id = 1;
+  optional Polyline boundary = 2;  // Includes height information. Direction does not matter.
+
+  // If it is OK to cross the boundary.
+  enum Crossable {
+    PHYSICALLY_NOT = 0;
+    LEGALLY_NOT = 1;
+    RIGHT_TO_LEFT = 2;
+    LEFT_TO_RIGHT = 3;
+    BOTH = 4;
+  }
+  optional Crossable crossable = 3;
+  
+  // merge start point position in 3d world if contains
+  optional Vector3d merge_start_point = 4;
+
+  // diverge start point position in 3d world if contains
+  optional Vector3d diverge_end_point = 5;
+
+  enum Type {
+    LONG_DASHED_LINE = 1;
+    SINGLE_SOLID_LINE = 3;
+    DASHED_BLOCKS = 8;
+    GORE = 23;
+    OTHER = 42;
+    SICK_SOLID_LINE = 43;
+    PARKING_LOT_LINE = 44;
+    VIRTUAL_LINE = 45;
+    INTERSECTION_VIRTUAL_LINE = 46;
+    ROAD_EDGE = 47;
+    CONSTRUCTION_FENCE = 48;
+    VIRTUAL_AUXILIARY_LINE = 50;
+    ACCESSORY_LINE = 53;
+    TAILGATING_ZONE_LM = 56;
+  };
+
+  repeated Type types = 6;
+
+  optional float confidence = 7; //confidence from perception road detection, available only in lanemap mode
+}
+
+enum ChangeLaneType {
+  FORWARD = 0;
+  LEFT = 1;
+  RIGHT = 2;
+};
+
+message Lane {
+  optional uint64 id = 1;
+
+  enum Type {
+    UNKNOWN = 0;
+    HIGHWAY = 1;  // Controlled access. Expects no pedestrians or bicycles.
+    STREET = 2;  // No access control. Expects pedestrians and bicycles.
+    BIDIRECTIONAL = 3;  // Continuous two-way left-turn lane.
+    SHOULDER = 4;  // Emergency stopping lane
+    BIKING = 5;
+    SIDEWALK = 6;
+    RESTRICTED = 7;
+    PARKING = 8;
+    ROADWORK = 9;
+    OFFRAMP = 10;
+    ONRAMP = 11;
+    VIRTUAL = 255; // Virtual lane for junction
+  };
+  repeated Type type = 2;
+
+  enum Turn {
+    INVALID = 0;
+    STRAIGHT = 1;
+    LEFT = 2;
+    RIGHT = 4;
+    U_TURN_LEFT = 8;
+    U_TURN_RIGHT = 16;
+    SKEW_LEFT = 32;
+    SKEW_RIGHT = 64;
+  }
+  // turn is a bitset, i.e., a left- and U-turn lane should have value
+  //    turn = LEFT | U_TURN_LEFT = 10.
+  optional int32 turn = 3;
+
+  // Reference trajectory of N points, not necessarily the geometric centerline.
+  // Direction of centerline is the direction of driving (except BIDIRECTIONAL lanes).
+  optional Polyline centerline = 4;  // Includes height information.
+
+  // Accumulated distance at each point. The first one is always 0.
+  repeated double centerline_s = 5 [packed = true];  // In m.
+
+  optional uint64 left_boundary_id = 6;
+  optional uint64 right_boundary_id = 7;
+
+  enum BoundaryDirection {
+    SAME = 0;
+    LEFT_REVERSE = 1;
+    RIGHT_REVERSE = 2;
+    BOTH_REVERSE = 3;
+  }
+  optional BoundaryDirection boundary_direction = 8;
+
+  repeated uint64 predecessor_id = 9 [packed = true];
+  repeated uint64 successor_id = 10 [packed = true];
+
+  // Neighbor lanes.
+  optional uint64 left_forward_lane_id = 11;
+  optional uint64 right_forward_lane_id = 12;
+  optional uint64 left_reverse_lane_id = 13;
+  optional uint64 right_reverse_lane_id = 14;
+
+  message Overlap {
+    optional uint64 id = 1;
+
+    enum Type {
+      UNKNOWN = 0;
+      CLEAR_ZONE = 1;
+      CROSS_WALK = 2;
+      JUNCTION = 3;
+      LANE = 4;
+      STOP_LINE = 5;
+      STOP_SIGN = 6;
+      TRAFFIC_LIGHT = 7;
+      YIELD_SIGN = 8;
+    }
+    optional Type type = 2;
+
+    optional double s_begin = 3;
+    optional double s_end = 4;
+  }
+
+  repeated Overlap overlaps = 15;
+
+  optional double speed_limit = 16 [default = 11.1111111];  // max speed limit In m/s. Default 40 km/h (25 mph).
+  optional double min_speed_limit = 17 [default = 0];       // min speed limit In m/s. Default 0 km/h (0 mph).
+  
+  enum LaneType {
+    NORMAL_LANE = 0 [deprecated = true];
+    ENTRY_LANE = 1 [deprecated = true];
+    EXIT_LANE = 2 [deprecated = true];
+    EXIT_AND_ENTRY_LANE = 3 [deprecated = true];
+    EXIT_OR_ENTRY_LANE = 4 [deprecated = true];
+    TRAIN_TRACK = 5 [deprecated = true];
+    TRAIN_STOP = 6 [deprecated = true];
+    VIR_LANE = 20;
+    MOTORWAY = 21;
+    BICYCLE_LANE = 22;
+    MIXED_LANE = 23;
+    MOTORCYCLE_LANE = 24;
+    LANE_SIDEWALK = 25;
+    STRAIGHT_CROSS_LANE = 26 [deprecated = true];
+    TURN_ROUND_LANE = 27 [deprecated = true];
+    VARIABLE_LANE = 28;
+    HOV_LANE = 29;
+    RIGHT_ACCE_LANE = 30;
+    RIGHT_DECE_LANE = 31;
+    LEFT_ACCE_LANE = 32;
+    LEFT_DECE_LANE = 33;
+    SPEED_CHANGE_LANE = 34;
+    TOLL_LANE = 35;
+    CHECKPOINT_LANE = 36;
+    BUS_LANE = 37;
+    CLIMBING_LANE = 38;
+    RAMP = 39 [deprecated = true];
+    ROAD_SHOULDER = 40;
+    EMERGENCY_LANE = 41;
+    EMERGENCY_STOP_AREA = 42;
+    PARNKING_LANE = 43;
+    HAZARDOUS_LANE = 44;
+    CUSTOMS_SUPER_LANE = 45;
+    AVOID_LANE_APPRO = 46;
+    PASSING_TRACK = 47;
+    NON_DRIVING_ZONE = 48;
+    BORROWING_ZONE = 49;
+    TRAMCAR_LANE = 50;
+    ETC_LANE = 51;
+    BUS_HARBOR_LANE = 52;
+    SPECIAL_CAR_LANE = 53;
+    TURNL_CROSS_LANE = 54 [deprecated = true];
+    TURNR_CROSS_LANE = 55 [deprecated = true];
+    TURNROUND_CROSS_LANE = 56 [deprecated = true];
+    OTHERS = 99;
+    LIMIT_INFO_REVERS = 100 [deprecated = true];
+  }
+  optional LaneType lane_type = 18; // definition directly coming from MapEngine, lane attributes
+  optional bool lane_used_in_both_directions = 19; // Whether this lane could be traveled in both directions.
+  optional double stats_speed = 20 [default = 0];  // an average speed from users' statistics
+
+  repeated double width = 21 [packed = true];  // In m.
+
+  optional double s_limit = 22; //arc length of lane from perception road detection, available only in lanemap
+
+  // Funciton downgrade info comes from multiple sources.
+  message DowngradeLaneSegment {
+    enum AdModeType {
+      MANUAL = 0;
+      NAD = 1;
+      NOP_PLUS = 2;
+      NP = 3;
+      PSAP = 4;
+      AVP = 5;
+      Driving_Common = 6;
+      Parking_Common = 7;
+    }
+    // The scenario where we should apply on.
+    optional AdModeType ad_mode_type = 1;
+
+    // The lane offset.
+    optional double start_s = 2;
+    optional double end_s = 3;
+
+    // Refer to: https://nio.feishu.cn/docs/doccnKqxKi6Ap4jOtFHeJBv2xRe?hash=18f0cf565e81f5365b20f50603da6e57#
+    optional int32 info_value = 4;
+    optional int32 dynamic_info = 5;
+    optional int32 road_scenario_type = 6;
+  }
+  repeated DowngradeLaneSegment downgrade_lane_segments = 23;  // completely copied from common/map_engine/hd_lane.proto
+  
+  // The recommanded speed(m/s) comes from multiple sources.
+  optional double advisory_speed_limit = 24;
+
+  optional double electronic_eye_speed_limit = 25;
+
+  optional double original_speed_limit = 26 [default = 0.0];
+  
+  // The max legal speed limit among all the lanes in the same lane group.
+  optional double max_lane_group_speed_limit = 27;
+
+}
+
+
+message LaneSegment {
+  optional uint64 id = 1;
+  optional double s_begin = 2;
+  optional double s_end = 3;
+  optional uint64 left_segment_id = 4;
+  optional uint64 right_segment_id = 5;
+  optional uint64 left_route_index = 6;
+  optional uint64 right_route_index = 7;
+  optional double previously_accumulated_s = 8 [default = 0.0];
+}
+
+message LaneSegments {
+  repeated LaneSegment lane_segments = 1;
+}
+
+message ClearZone {
+  optional uint64 id = 1;
+  optional Polygon polygon = 2;
+}
+
+message CrossWalk {
+  optional uint64 id = 1;
+  optional Polygon polygon = 2;
+}
+
+message Junction {
+  optional uint64 id = 1;
+  optional Polygon polygon = 2;
+  repeated uint64 lane_id = 3 [packed = true];
+  repeated uint64 crosswalk_id = 4 [packed = true];
+  repeated uint64 stopline_id = 5 [packed = true];
+}
+
+message StopLine {
+  optional uint64 id = 1;
+
+  optional Polyline stop_line = 2;
+
+  // A StopLine corresponds to one of the followings:
+  optional uint64 stop_sign_id = 3[deprecated = true];
+
+  optional uint64 yield_sign_id = 4[deprecated = true];
+
+  repeated uint64 traffic_light_id = 5 [packed = true];
+
+  repeated uint64 lane_ids = 6 [packed = true];
+
+  repeated uint64 stop_sign_ids = 7[packed = true];
+
+  repeated uint64 yield_sign_ids = 8[packed = true];
+}
+
+message StopSign {
+  optional uint64 id = 1;
+
+  optional Vector3d location = 2;
+}
+
+message TrafficLight {
+  optional uint64 id = 1;
+
+  optional Vector3d location = 2;  // Center of the box of lights.
+
+  // A single light is a bitset, i.e., a green left-turn arrow light should have value
+  //    GREEN | ARROW_LEFT = 68.
+  // For another example, a red or white pedestrian light should have value
+  //    RED | WHITE | PEDESTRIAN = 1033.
+  enum Light {
+    INVALID = 0;
+
+    // Colors
+    RED = 1;
+    YELLOW = 2;
+    GREEN = 4;
+    WHITE = 8;
+
+    // Shapes
+    CIRCLE = 16;
+    ARROW_FORWARD = 32;
+    ARROW_LEFT = 64;
+    ARROW_RIGHT = 128;
+    ARROW_U_TURN_LEFT = 256;
+    ARROW_U_TURN_RIGHT = 512;
+    PEDESTRIAN = 1024;
+  }
+  repeated int32 lights = 3 [packed = true];
+
+  // http://www.trafficsignals.net/faq.htm
+  optional double hight = 4 [default = 1.0668];
+  optional double width = 5 [default = 0.3429];
+
+  repeated uint64 lane_ids = 6 [packed = true];
+}
+
+message YieldSign {
+  optional uint64 id = 1;
+
+  optional Vector3d location = 2;
+}
+
+// copy from mazu_message/common/map_engine/hd_link_info.proto
+message HdLinkInfo {
+  optional uint64 id = 1;
+
+  // Length of the link in meter
+  optional double length = 2;
+
+  // Average speed that can be achieved on a link by a car during normal traffic flow.
+  // Unit size is km/h. The range is 1 to 255.
+  optional uint32 average_speed = 3;
+
+  enum PriorityRoadClass
+  {
+    MOTORWAY = 0;
+    CITY_MOTORWAY = 1;
+    NATIONAL_HIGHWAY = 2;
+    PROVINCIAL_HIGHWAY = 3;
+    COUNTY_ROAD = 4;
+    TOWNSHIP_ROAD = 5;
+    OTHER_ROAD = 6;
+    SPECIAL_SERVICE = 7;
+    FERRY = 8;
+    PEDESTRIAN_ROAD = 9;
+    PASSENGER_FERRY = 10;
+    CYCLE_TRACK = 11;
+  }
+  optional PriorityRoadClass priority_road_class = 4;
+
+  enum TravelDirection
+  {
+    IN_NO_DIRECTION = 0;
+    IN_POSITIVE_DIRECTION = 1;
+    IN_NEGATIVE_DIRECTION = 2;
+    IN_BOTH_DIRECTIONS = 3;
+  }
+  optional TravelDirection travel_direction = 5;
+
+  enum FormWay
+  {
+    FORM_WAY_NONE = 0;
+    FORM_WAY_SEPARATE_DIRECTION = 1;
+    FORM_WAY_INTERSECTION = 2;
+    FORM_WAY_IC = 3;
+    FORM_WAY_JCT = 4;
+    FORM_WAY_TUNNEL = 5;
+    FORM_WAY_SA = 6;
+    FORM_WAY_PA = 7;
+    FORM_WAY_RELIEF_ROAD = 8;
+    FORM_WAY_ROUNDABOUT = 9;
+    FORM_WAY_BRIDGE = 10;
+    FORM_WAY_PEDESTRIAN_STREET = 11;
+    FORM_WAY_RAMP = 12;
+    FORM_WAY_CONTROLLED_ACCESS = 13;
+    FORM_WAY_UNKNOWN_TRAFFIC_REGION = 14;
+    FORM_WAY_POI_LINK = 15;
+    FORM_WAY_BUS = 16;
+    FORM_WAY_RIGHT_TURN = 17;
+    FORM_WAY_TOURIST = 18;
+    FORM_WAY_REGION_ROAD = 19;
+    FORM_WAY_LEFT_TURN = 20;
+    FORM_WAY_TRUCK = 21;
+    FORM_WAY_RELIEF_ENTRANCE_OR_EXIT = 22;
+    FORM_WAY_PA_ENTRANCE_OR_EXIT = 23;
+    FORM_WAY_MOVABLE_BRIDGE = 24;
+    FORM_WAY_RESERVED = 25;
+    FORM_WAY_MAIN_ROAD = 26;
+    FORM_WAY_TURN_LEFT_TO_BORROW_ROAD = 27;
+    FORM_WAY_UTURN = 28;
+    FORM_WAY_LINK_TO_SPECIAL = 29;
+    FORM_WAY_LINK_STEP_ROAD = 30;
+    FORM_WAY_LINK_FRONT_OF_DOOR = 31;
+  };
+  repeated FormWay form_way = 6;
+
+  // The geometric predecessor/successor of this link.
+  repeated uint64 predecessor_link_ids = 7;
+  repeated uint64 successor_link_ids = 8;
+
+  // The lane ids which related to this link.
+  repeated uint64 lane_ids = 9;
+
+  // The lane group ids which related to this link.
+  repeated uint64 lane_group_ids = 10;
+
+  // The road geo line ids which related to this link.
+  repeated uint64 road_geo_line_ids = 11;
+
+  //virtual link
+  optional bool complex_intersection = 12;
+}
+
+
+// refer to mazu mesage
+message LinkFeaturePoint {
+  /* 类型
+    0：服务区进入点（不需要存储offset position ref_link）
+    1：服务区退出点（不需要存储offset position ref_link）
+    2：泊车等候区进入点
+    3：泊车等候区退出点
+    4：换电停车位进入点
+    5：换电停车位退出点
+  */
+  optional int32 type = 1;
+  // 相对于link起点偏移量（0-1，0：起点 1：终点）
+  optional float offset = 2;
+  // 坐标
+  optional Vector3d position = 3;
+  // 关联道路ID
+  optional uint64 link_id = 4;
+}
+
+
+message ParkingArea {
+  optional uint64 id = 1;
+
+  // The surface of parking area.
+  optional Polygon polygon = 2;
+
+  enum MarkingType {
+    PARKING_AREA_PARA = 40001;      // 平行停车位
+    PARKING_AREA_VERTICAL = 40002;  // 垂直停车位
+    PARKING_LEAN = 40003;           // 斜向停车位
+  };
+  optional MarkingType marking_type = 3;
+
+  enum ParkingType {
+    SOCIAL_VEHICLE_PARKING_AREA = 1;  // 社会车辆停车位
+    BATTERY_SWAP_PARKING_AREA = 2;    // 换电车位（换电定位框）
+    NIO_DEDICATED_PARKING_AREA = 3;   // 蔚来专用停车位
+    CART_PARKING_AREA = 4;            // 大车停车位
+  };
+  optional ParkingType parking_type = 4;
+
+  // 航向角
+  optional double heading = 5;
+
+  // 关联道路特征点（与换电车位短边有相交的link）
+  repeated LinkFeaturePoint link_feature_points = 6;
+  // 关联道路（与换电车位长边相交，或者与换电车位不相交的link）
+  repeated uint64 link_ids = 7;
+}
+
+
+message WaitingZone {
+  optional uint64 id = 1;
+
+  // The surface of waiting zone.
+  optional Polygon polygon = 2;
+
+  // 关联道路特征点
+  repeated LinkFeaturePoint link_feature_points = 3;
+}
+
+
+message RoadMap {
+  optional MapProjection projection = 1;
+  repeated Lane lanes = 2;
+  repeated LaneBoundary lane_boundaries = 3;
+  repeated ClearZone clear_zones = 4;
+  repeated CrossWalk cross_walks = 5;
+  repeated Junction junctions = 6;
+  repeated StopLine stop_lines = 7;
+  repeated StopSign stop_signs = 8;
+  repeated TrafficLight traffic_lights = 9;
+  repeated YieldSign yield_signs = 10;
+  repeated HdLinkInfo hd_links = 11;
+  repeated ParkingArea parking_areas = 12;
+  repeated WaitingZone waiting_zones = 13;
+}

@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+package nio.proto;
+
+import "stream.proto";
+
+message ConfigEQ4 {
+  optional Stream data = 1;
+
+}

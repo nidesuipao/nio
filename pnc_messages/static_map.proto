@@ -1,0 +1,32 @@
+syntax = "proto2";
+
+package nio.proto;
+import "road_map.proto";
+import "global_routes.proto";
+
+
+enum StaticMapSource {
+    reserved 0;
+    LANEMAP = 1; // global localization is bad
+    GLOBAL_HDMAP = 2;  // hdmap in global coordinate
+    EGO_HDMAP = 3; // hdmap in ego-car coordinate
+};
+
+
+// StaticMap is received from Map Engine, including a base map in 9 tiles, 
+// a global routing result within the area of the base map,
+// and the realtime traffic jam info alongside the routing.
+message StaticMap {
+    optional uint64 time_pub = 1;  // timestamp when the message is published. unit: ns
+    optional RoadMap road_map = 2;  // updates when move to a new tile
+    optional string tile_id = 3;
+    optional int32 map_version = 4;
+    optional GlobalRouting global_routing = 5;
+    optional uint64 routing_update_time = 6; // related to GlobalRouting.global_routing_counter
+    optional StaticMapSource source = 7; // indirectly indicates if global localization is reliable
+    optional uint64 current_lane_id = 8; // current hd lane id, from global localization
+}
+// global_routing updates in 3 cases: 
+// 1. DC updates passively when user drives on a wrong road
+// 2. DC updates actively when user changes the destination
+// 3. Routing info updates when road_map changes

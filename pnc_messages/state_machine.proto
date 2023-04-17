@@ -1,0 +1,175 @@
+syntax = "proto2";
+
+package nio.proto;
+
+import "hmi_state.proto";
+
+enum ALCFuncSts {
+  ALC_NOT_ENGAGED = 0;
+  ALC_LANE_CENTERING = 1;
+  ALC_PREPARING_LANE_CHANGE_TOWARDS_LEFT = 2;
+  ALC_PREPARING_LANE_CHANGE_TOWARDS_RIGHT = 3;
+  ALC_EXECUTING_LANE_CHANGE_TOWARDS_LEFT = 4;
+  ALC_EXECUTING_LANE_CHANGE_TOWARDS_RIGHT = 5;
+  ALC_ABORTING_LANE_CHANGE_INTO_NEW_LANE = 6;
+};
+
+enum CollisionRisk {
+  NO_COLLISION_RISK_DETECTED = 0;
+  CLOSE_DISTANCE_CUTIN_WARNING = 1; 
+  INSUFFICIENT_DECELERATION_WARNING = 2;
+  LOSS_OF_LATERAL_CONTROL_WARNING = 3;
+};
+  
+enum LatCtrlTar {
+  NO_LANE_LINE_DETECTED = 0;
+  LANE_LINE_NOT_USED_AS_LATERAL_CONTROL_TARGET = 1;
+  LANE_LINE_USED_AS_LATERAL_CONTROL_TARGET = 2;
+  VEHICLE_DRIFTING_OUT_OF_LANE_TOWARDS_THIS_SIDE = 3;
+};
+
+enum LongCtrlTar {
+  NO_LONGITUDINAL_CONTROL_TARGET = 0;
+  LONGITUDINAL_CONTROL_TARGET_AVAILABLE = 1;
+};
+
+enum TurnIndicatorReq {  
+  REQ_NO_TURN_INDICATOR = 0;
+  REQ_LEFT_TURN_INDICATOR = 1; 
+  REQ_RIGHT_TURN_INDICATOR = 2;
+};
+
+enum NOPWtiElement {
+  REQ_NO_WARNING = 0x00;
+  REQ_UNABLE_ENTER_RAMP_P5 = 0x07;
+  REQ_UNABLE_MERGING_P5 = 0x08;
+  REQ_TAKE_OVER_P5 = 0x09;
+  REQ_MAY_BE_INACCESSIBLE_RAMP_P6 = 0x26;
+  REQ_APPROACHING_OUT_OF_ODD_P6 = 0x27;
+  REQ_UNABLE_RETURN_ORIGINAL_LANE_BECAUSE_LANE_CHANGING_P6 = 0x28;
+  REQ_CHANGE_LANES_TO_AVOID_OBSTACLES_P6  = 0x29;
+  REQ_CAREFUL_WITH_CONSTRUCTION_AHEAD_P6  = 0x2A;
+  REQ_PREPARING_LANE_CHANGE_TOWARDS_LEFT_PLEASE_FOLLOW_NAVIGATION_P8 = 0x4B;
+  REQ_PREPARING_LANE_CHANGE_TOWARDS_RIGHT_PLEASE_FOLLOW_NAVIGATION_P8 = 0x4C;
+  REQ_PLEASE_TURN_ON_INDICATOR_LEFT_TO_FOLLOW_NAVIGATION_P8 = 0x4D;
+  REQ_PLEASE_TURN_ON_INDICATOR_RIGHT_TO_FOLLOW_NAVIGATION_P8 = 0x4E;
+  REQ_PLEASE_TURN_ON_INDICATOR_LEFT_TO_ENTER_THE_RECOMMENDED_LANE_P8 = 0x4F;
+  REQ_PLEASE_TURN_ON_INDICATOR_RIGHT_TO_ENTER_THE_RECOMMENDED_LANE_P8 = 0x50;
+  REQ_PREPARING_LANE_CHANGE_TOWARDS_LEFT_TO_ENTER_THE_RECOMMENDED_LANE_P8 = 0x51;
+  REQ_PREPARING_LANE_CHANGE_TOWARDS_RIGHT_TO_ENTER_THE_RECOMMENDED_LANE_P8 = 0x52;
+  REQ_PREPARING_TO_ENTER_THE_RAMP_PLEASE_ATTENTION_P8 = 0x53;
+  REQ_PREPARING_TO_MERGE_PLEASE_ATTENTION_P8 = 0x54;
+  REQ_CANCEL_LANE_CHANGE_P8 = 0x55;
+  REQ_OVERTAKING_LEFT_P8 = 0x5F;
+  REQ_OVERTAKING_RIGHT_P8 = 0x60;
+  REQ_ABORTING_LANE_CHANGE_INTO_NEW_LANE_P8 = 0x69;
+  REQ_CONTINUOUS_LANE_CHANGE_IS_THE_FIRST_TIME_P8 = 0x6A;
+  REQ_CONTINUOUS_LANE_CHANGE_IS_NOT_THE_FIRST_TIME_P8 = 0x6B;
+  REQ_THE_OFF_RAMP_IS_THE_FIRST_LANE_CHANGE_P8 = 0x6E;
+  REQ_THE_OFF_RAMP_IS_NOT_THE_FIRST_LANE_CHANGE_P8 = 0x6F;
+  REQ_1KM_BEFORE_ENTERING_THE_DEESCALATION_ZONE_P8 = 0x78;
+  REQ_300M_BEFORE_ENTERING_THE_DEESCALATION_ZONE_P8 = 0x7B;
+  REQ_PLEASE_TURN_OFF_THE_INDICATIOR_LIGHT_P9 = 0xE3;
+};
+
+enum NOPWtiPriority {
+  NOPWTI_P0 = 0;
+  NOPWTI_P1 = 1;
+  NOPWTI_P2 = 2;
+  NOPWTI_P3 = 3;
+  NOPWTI_P4 = 4;
+  NOPWTI_P5 = 5;
+  NOPWTI_P6 = 6;
+  NOPWTI_P7 = 7;
+  NOPWTI_P8 = 8;
+  NOPWTI_P9 = 9;
+  NOPWTI_P10 = 10;
+};
+
+enum NOPLongCtrlMode {
+  LC_OFF = 0;
+  LC_PASSIVE = 1;
+  LC_STANDBY = 2;
+  LC_ACTIVE = 3;
+  LC_BRAKE_ONLY = 4;
+  LC_OVERRIDE = 5;
+  LC_STANDSTILL = 6;
+  LC_FAILURE = 7;
+};
+
+message NopEsdLine{ 
+  optional uint64 esd_nop_line_role = 1;   // LD_Track_ID
+  optional uint64 esd_nop_line_ld_level = 2; // highlight level 0~3
+}
+
+message NopEsdObject{
+  optional uint64 esd_nop_obj_id = 1; //  1 ~ 2 ^ 20（1048576)
+  optional uint64 esd_nop_obj_da = 2; // highlight level  0~5
+}
+
+message NopEsdPathPoint{
+  optional float x = 1;
+  optional float y = 2;
+  optional float z = 3;
+}
+
+message NopEsdPath {
+  repeated NopEsdPathPoint esd_nop_path_points = 1;
+  optional float esd_nop_discrete_path_length = 2;
+  optional bool esd_nop_discrete_path_enable = 3;
+}
+
+message NpEsdPath{
+  optional float esd_np_path_c0 = 1;
+  optional float esd_np_path_c1 = 2;
+  optional float esd_np_path_c2 = 3;
+  optional float esd_np_path_c3 = 4;
+  optional float esd_np_path_c4 = 5;
+  optional float esd_np_path_c5 = 6;
+  optional float esd_np_path_end = 7;
+  optional bool esd_np_enable = 8; // 1 enable 0  not enable
+}
+
+message NopEsdFeature{
+  repeated NopEsdLine esd_nop_line = 1;
+  repeated NopEsdObject esd_nop_object = 2;    
+  optional ALCFuncSts esd_nop_alc_sts = 3 [default = ALC_NOT_ENGAGED];
+  optional uint32 esd_nop_distance_to_odd_boundary = 4;
+  optional NpEsdPath esd_np_path = 5;
+  optional NopEsdPath esd_nop_path = 6;
+
+  optional uint64 time_meas = 50; // ns
+}
+
+// broadcast cycle time: 50ms
+message StateMachine {
+  optional FunctionRequest nop_func_sts = 1 [default = REQ_OFF];
+  optional ALCFuncSts nop_alc_sts = 2 [default = ALC_NOT_ENGAGED];
+  optional CollisionRisk nop_collision_risk = 3 [default = NO_COLLISION_RISK_DETECTED];
+  optional LatCtrlTar nop_lat_ctrl_tarLe = 4 [default = NO_LANE_LINE_DETECTED];
+  optional LatCtrlTar nop_lat_ctrl_tarRi = 5 [default = NO_LANE_LINE_DETECTED];
+  optional LongCtrlTar nop_long_ctrl_tar = 6 [default = NO_LONGITUDINAL_CONTROL_TARGET];
+  optional TurnIndicatorReq nop_turn_indicator_req = 7 [default = REQ_NO_TURN_INDICATOR];
+  optional bool nop_freeSpace_intrusion_at_standstill = 8 [default = false];
+  optional bool nop_freeSpace_intrusion_go_notifier = 9 [default = false];
+  optional bool nop_scene_mgmt_ok = 10 [default = false];
+  optional NOPWtiElement nop_wti_element = 11 [default = REQ_NO_WARNING];
+  optional NopEsdFeature nop_esd_feature = 12;
+  optional NOPLongCtrlMode nop_vlc_mode = 13 [default = LC_OFF];
+  optional uint32 nop_distance_to_operational_event = 14;
+  optional bool driver_lane_change_request = 15 [default = false];
+  optional int32 nop_req_function_id = 16 [default = 0];
+  optional uint32 nop_odd_left_distance = 17 [default = 0];
+  optional uint32 nop_oe_left_distance = 18 [default = 0];
+  optional bool planner_sts = 19 [default = true];
+  optional bool controller_sts = 20 [default = true];
+  optional bool rcv_hmi_state_sts = 21 [default = true];
+  optional bool rcv_control_command_sts = 22 [default = true];
+  optional bool odd_range_standby_sts = 23 [default = true];
+  optional bool odd_range_checking_sts = 24 [default = true];
+  optional bool oe_range_standby_sts = 25 [default = true];
+  optional bool oe_range_checking_sts = 26 [default = true];
+  optional bool oe_lc_checking_sts = 27 [default = true];
+
+  optional uint64 time_pub = 50; // ns
+}

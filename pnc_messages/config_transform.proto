@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package nio.static_transform;
+
+message ExtrinsicFile {
+  optional string tf_name = 1;   // not used; a lable name
+  optional string file_path = 2; // prototxt file
+  optional bool enable = 3;      // reserved
+}
+
+message Conf {
+  repeated ExtrinsicFile extrinsic_file = 1;
+}

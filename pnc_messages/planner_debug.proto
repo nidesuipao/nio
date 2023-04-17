@@ -1,0 +1,493 @@
+syntax = "proto2";
+
+package nio.proto;
+
+import "geometry.proto";
+import "decision.proto";
+import "path.proto";
+import "road_map.proto";
+import "behavior_obstacle.proto";
+import "planner_scheduler.proto";
+
+//note: there is no much reusable structure
+//reference line debug:s,x,y,theta,k,dk,calculated bound,offset_l
+message ReferenceLinePoint{
+  optional double s = 1;
+  optional double x = 2;
+  optional double y = 3;
+  optional double heading = 4;
+  optional double k = 5;
+  optional double dk = 6;
+  optional double lateral_bound = 7;
+  optional double offset_l = 8; // offset to center line point
+}
+message ReferenceLineDebug{
+  repeated ReferenceLinePoint reference_line_point = 1;
+}
+//path bound(s,l)
+message PathBound{
+  optional string label = 1;
+  repeated SLPoint left_bound = 2;
+  repeated SLPoint right_bound = 3;
+}
+//multiple path boundary
+message PathBoundsDebug{
+  repeated PathBound path_bound = 1;
+}
+//obstacle s l boundary
+//obstacle s t boundary
+//obstacle decision type
+message ObstacleDebug{
+  optional SLBoundary sl_boundary = 1;
+  optional STBoundary st_boundary = 2;
+  //obstacle decision tag
+  optional ObjectDecisionType longitudinal_decision_type = 3;
+  optional ObjectDecisionType lateral_decision_type = 4;
+
+}
+message ObstaclesDebug{
+  map<string, ObstacleDebug> obstacle_debug_maps = 1;
+}
+
+//path result data
+message PathDataDebug{
+  //only position,k,theta,s,l related with path is used
+  repeated PathPoint path_points = 1;
+}
+//speed bound
+//there could be better if we use some basic data structure like this in tasks
+message SpeedLimitPoint{
+  optional double s = 1;
+  optional double v = 2;
+}
+message SpeedBoundDebug{
+  repeated SpeedLimitPoint speed_limit_points = 1;
+}
+//st graph result with every point's cost
+message StGraphPoint{
+  optional STPoint st_point = 1;
+  optional double obstacle_cost = 2;
+  optional double spatial_potential_cost = 3;
+  optional double edge_cost = 4;
+  optional double total_cost = 5;
+}
+message StGraphDebug{
+  repeated StGraphPoint st_graph_points = 1;
+}
+//st graph result
+message StGraphResultDebug{
+  repeated SpeedPoint speed_points = 1;
+}
+//qp speed bound
+
+//qp speed result
+message SpeedDataDebug{
+  repeated SpeedPoint speed_points = 1;
+  optional double current_map_speed_limit = 2 [default = 0.0]; // km/h
+}
+
+message HmiLaneChangeReqStatus {
+  enum TaskState {
+    TASK_STATE_NONE = 0;
+    TASK_STATE_REJECTED = 1;
+    TASK_STATE_PREPARING = 2;
+    TASK_STATE_RUNNING = 3;
+    TASK_STATE_CANCELED = 4;
+    TASK_STATE_FINISHED = 5;
+  }
+  enum TaskError {
+    TASK_ERROR_NONE = 0;
+    TASK_ERROR_INTENTION_NOT_READY = 1;
+    TASK_ERROR_SPEED_OUT_OF_RANGE = 2;
+    TASK_ERROR_LANE_NOT_EXIST = 3;
+    TASK_ERROR_LANE_NOT_DRIVABLE = 4;
+    TASK_ERROR_LANE_BOUNDARY_FORBID = 5;
+    TASK_ERROR_LC_SPACE_NOT_ENOUGH = 6;
+    TASK_ERROR_NOT_INTERRUPT_LANE_CHANGING = 7;
+    TASK_ERROR_ON_LANE_CHANGING = 8;
+    TASK_ERROR_CANCELED_BY_HMI = 9;
+    TASK_ERROR_CANCELED_BY_SAFETY = 10;
+  }
+  optional TaskState task_state = 1;
+  optional TaskError task_error = 2;
+}
+
+message LaneChangeStatus {
+  enum LaneChangeType {
+    SUCCEEDING = 0;
+    LEFT_FORWARD = 1;
+    LEFT_REVERSE = 2;
+    RIGHT_FORWARD = 3;
+  }
+  enum StatusType {
+    NONE = 0;
+    LANE_CHANGING = 1;
+    CANCEL = 2;
+    READY_TO_FINISH = 3;
+    FINISH = 4;
+  }
+  enum TriggerType {
+    TRIGGER_TYPE_NONE = 0;
+    TRIGGER_TYPE_PASSIVE = 1;
+    TRIGGER_TYPE_INITIATIVE = 2;
+  }
+  optional LaneChangeType lane_change_type = 1;
+  optional StatusType status_type = 2;
+  optional TriggerType trigger_type = 3;
+  optional HmiLaneChangeReqStatus hmi_lane_change_req_status = 4;
+}
+
+message LaneChangeTask {
+  message LaneChangeInfo {
+    optional double current_crossable_remain_s = 1;
+    optional double crossable_remain_s = 2;
+  }
+  enum TaskType {
+    TASK_TYPE_HMI_REQ = 0;
+    TASK_TYPE_ROUTING = 1;
+  }
+  optional LaneChangeStatus.LaneChangeType lane_change_type = 1;
+  optional double remain_s = 2;
+  optional LaneChangeInfo left_lane_change_info = 3;
+  optional LaneChangeInfo right_lane_change_info = 4;
+  optional TaskType task_type = 5;
+  optional bool is_cancel_lane_change = 6;
+  optional LaneChangeTriggerType trigger_type = 7;
+}
+
+message BehaviorPlanningEgoInput {
+  optional LaneChangeStatus lane_change_status = 1;
+  optional LaneChangeTask lane_change_task = 2;
+  optional bool is_auto_mode = 3;
+  optional BehaviorVehicle ego_vehicle = 4;
+}
+
+message ObstacleTraj {
+  optional int64 obstacle_id = 1;
+  repeated PathPoint points = 2;
+}
+
+message ObstacleRelationSet {
+  message ObstacleRelation {
+    enum Type {
+      DEFAULT = 0;
+      SAME = 1;
+      FRONT = 2;
+      BACK = 3;
+      LEFT = 4;
+      RIGHT = 5;
+      MERGE = 6;
+    };
+    optional Type type = 1;
+    repeated int64 relation_obstacle_ids = 2;
+  }
+  optional int64 obstacle_id = 1;
+  repeated ObstacleRelation obstacle_relations = 2;
+}
+
+//several obstacles relation set
+message FrameObstaclesRelationSet {
+  repeated ObstacleRelationSet obstacles_relation_set = 1;
+}
+
+message ActionObstaclesRelationSet {
+  repeated FrameObstaclesRelationSet frame_obstacles_relation_sets = 1;
+}
+
+message FrameIntention {
+  message Intention {
+    enum Type {
+      LEADING = 0;
+      VIRTUAL_LEADING = 1;
+      MERGE_LEADING = 2;
+    };
+    optional Type type = 1;
+    optional int64 obstacle_id = 2;
+    optional int64 lane_id = 3;
+  }
+  repeated Intention intentions = 1;
+}
+
+message ActionIntentionSet {
+  repeated FrameIntention frame_intentions = 1;
+}
+
+message ObsDecision {
+  enum ObsDecisionType {
+    YIELD = 0;
+    NOT_YIELD = 1;
+    LEFT_NUDGE = 2;
+    RIGHT_NUDGE = 3;
+    IGNORE = 4;
+    SLOT_FRONT = 5;
+    SLOT_BACK = 6;
+  }
+  optional string id = 1 [default = ""];
+  optional ObsDecisionType decision = 2 [default = IGNORE];
+}
+
+message SlotInfo {
+  enum SlotType {
+    LANE_CHANGE = 0;
+    MERGE = 1;
+    CROSS = 2;
+  }
+  optional string id = 1;
+  optional SlotType slot_type = 2;
+  repeated int32 front_obstacle_id = 3;
+  repeated int32 back_obstacle_id = 4;
+  optional uint64 target_lane_id = 5;
+}
+
+message DecisionStrategyOutput {
+  optional double timestamp = 1;
+  optional int32 leading_vehicle_id = 2;
+  repeated ObsDecision lane_keep_decision = 3;
+  repeated SlotInfo slot_info = 4;
+  optional double ego_s_to_merge_point = 5;
+}
+
+//lateral behavior debug data
+message BehaviorDebug {
+  message ActionSequenceInfo {
+    //NEXT ID: 13
+    optional int64 seq_id = 1;
+    optional string action = 2;
+    repeated PathPoint points = 3;
+    optional double final_cost = 4;
+    optional double efficiency_cost = 5;
+    optional double safety_cost = 6;
+    optional double navigation_cost = 7;
+    optional double utility_cost = 8;
+    repeated ObstacleTraj obstacle_trajs = 9;
+    repeated ActionObstaclesRelationSet action_obstacles_relation_sets = 10;
+    repeated ActionObstaclesRelationSet action_virtual_obstacles_relation_sets = 11;
+    repeated ActionIntentionSet ego_action_intentions = 12;
+  }
+  optional BehaviorPlanningEgoInput behavior_planning_ego_input = 1;
+  optional BehaviorVehicleSet all_vehicle_set = 2;
+  optional BehaviorVehicleSet virtual_vehicle_set = 3;
+  optional VehicleSemanticInfoSet vehicle_semantic_info_set = 4;
+  repeated ActionSequenceInfo action_sequence_info = 8;
+  optional Polyline best_behavior_target_lane_points = 9;
+  repeated DecisionStrategyOutput strategy_output = 10;
+}
+
+message BoundPoint {
+  optional double s = 1;
+  optional double u = 2;
+  optional double d = 3;
+}
+
+message Bound {
+  repeated BoundPoint sl_bounds = 1;
+  repeated BoundPoint st_bounds = 2;
+}
+
+message Trajectory {
+  repeated PathPoint path_points = 2;
+}
+
+message Box {
+  optional double time = 1;
+  repeated SLPoint sl = 2;
+}
+
+message ObstacleBox {
+  optional string id = 1;
+  repeated Box boxs = 2;
+}
+
+message BehaviorInfo {
+  optional Trajectory ego_trajectory = 1;
+  repeated Trajectory obs_trajectory = 2;
+  repeated ObstacleBox obs_box = 3;
+}
+message VirtualObstacle{
+  optional string id = 1;
+  optional Vector3d position = 2;
+}
+
+enum FallbackType{
+  kLevel0 = 0; // unavailable
+  kLevel1 = 1;
+  kLevel2 = 2;
+  kLevel3 = 3;
+}
+message PlaningFallBackMsg {
+  optional FallbackType speed_fall_back_type = 1;
+  optional FallbackType path_fall_back_type = 2;
+}
+message TrajPt {
+  optional double x = 1;
+  optional double y = 2;
+  optional double heading = 3;
+  optional double acc = 4;
+  optional double steer = 5;
+  optional double t = 6;
+  optional int64 time_stamp = 7;
+}
+message ReferLinePt {
+  optional double x = 1;
+  optional double y = 2;
+  optional double heading = 3;
+  optional uint64 lane_id = 4;
+  optional double speed_limit = 5;
+  optional double left_width = 6;
+  optional double right_width = 7;
+
+  optional LaneBoundary.Crossable left_bnd_type = 8;
+  optional LaneBoundary.Crossable right_bnd_type = 9;
+}
+message ReferLine {
+  repeated ReferLinePt refer_line_pts = 1;
+  optional double s_init = 2;
+
+  message AnchorPoint {
+    optional double x = 1;
+    optional double y = 2;
+    optional double heading = 3;
+    optional double longitudinal_bound = 4;
+    optional double left_lateral_bound = 5;
+    optional double right_lateral_bound = 6;
+    optional bool curb_shifted = 7;
+    optional uint64 lane_id = 8;
+  }
+  repeated AnchorPoint anchor_points = 3;
+}
+
+message SLTMapData {
+  repeated uint32 idx_vec = 1;
+  repeated uint32 fill_vec = 2;
+}
+message SLTPt {
+  optional double s = 1;
+  optional double l = 2;
+  optional double t = 3;
+}
+message SLTIndex {
+  optional int32 s_idx = 1;
+  optional int32 l_idx = 2;
+  optional int32 t_idx = 3;
+}
+message SLTMapSeed {
+  optional SLTPt slt_pt = 1;
+  optional SLTIndex slt_idx = 2;
+}
+message SLTMapSemanticInfo {
+  optional bool filled = 1;
+  optional bool out_ranged = 2;
+  optional string obs_id = 3;
+}
+message SLTMapCube {
+  optional SLTIndex up_bnd_idx = 1;
+  optional SLTIndex low_bnd_idx = 2;
+  optional SLTPt up_bnd_pt = 3;
+  optional SLTPt low_bnd_pt = 4;
+  optional SLTMapSemanticInfo up_bnd_semantic_info_s = 5;
+  optional SLTMapSemanticInfo up_bnd_semantic_info_l = 6;
+  optional SLTMapSemanticInfo up_bnd_semantic_info_t = 7;
+  optional SLTMapSemanticInfo low_bnd_semantic_info_s = 8;
+  optional SLTMapSemanticInfo low_bnd_semantic_info_l = 9;
+  optional SLTMapSemanticInfo low_bnd_semantic_info_t = 10;
+}
+message SLTMap {
+  optional SLTMapData slt_map_data = 1;
+  repeated SLTMapSeed slt_map_seeds = 2;
+  repeated SLTMapCube slt_map_cubes = 3;
+}
+message TimePointDecisions {
+  optional double t = 1 [default = 0.0];
+  repeated ObsDecision obs_decision = 2;
+}
+message ObsDecisionDebug {
+  repeated TimePointDecisions decisions = 1;
+}
+message BoundLine {
+  optional string name = 1; // name of boundary
+  repeated double value = 2; // value of boundary points
+}
+message MotionBoundary {
+  // for any i, must satisfy:
+  // x.size == bound_lines[i].value.size
+  repeated double x = 1;  // s or t etc.
+  repeated BoundLine bound_lines = 2;  // value of all bounds
+}
+message MotionDebug {
+  optional PlaningFallBackMsg fall_back_msg = 1;
+  optional TrajPt init_state = 2;
+  optional ReferLine refer_line = 3;
+  optional SLTMap slt_map = 4;
+  optional MotionBoundary path_boundary = 5;
+  optional MotionBoundary speed_boundary = 6;
+  optional PathDataDebug path_data_debug = 7;
+  optional SpeedDataDebug speed_data_debug = 8;
+  optional ObsDecisionDebug obs_decision_debug = 9;
+}
+
+message LaneWayPoint {
+  optional Vector3d position = 1;
+  optional double heading = 2;
+  optional uint64 lane_id = 3;
+  optional double start_s = 4;
+}
+
+message LocalRoute {
+  optional uint64 route_id = 1 [default = 0];
+  optional LaneSegments lane_segments = 2;
+  optional double route_length = 3 [default = 0.0];
+  optional uint64 priority = 4 [default = 0];
+  optional bool can_exit = 5 [default = false];
+  repeated uint64 left_neighbor_ids = 6;
+  repeated uint64 right_neighbor_ids = 7;
+  optional double average_max_speed_limit = 8 [default = 0.0];
+  optional double average_min_speed_limit = 9 [default = 0.0];
+}
+
+message LocalRoutesDebugInfo {
+  optional uint64 frame_id = 1 [default = 0];
+  optional LocalRoute current_route = 2;
+  repeated LocalRoute all_other_routes = 3;
+  optional LaneWayPoint adc_waypoint = 5;
+}
+
+message NavigationDebugInfo {
+  enum SplitType {
+    NONE = 0;
+    LEFT_TURN = 1;
+    RIGHT_TURN = 2;
+    RAMP = 3;
+  }
+  enum SplitDirection{
+    INVALID = 0;
+    LEFT = 1;
+    RIGHT = 2;
+  }
+  optional SplitType split_type = 1 [default = NONE];
+  optional SplitDirection split_direction = 2 [default = INVALID];
+  optional double split_distance = 3 [default = 0];
+}
+
+
+//output trajectory already in path.proto
+
+//Debug Message
+message PlannerDebug{
+  optional ReferenceLineDebug reference_line_debug = 1 [deprecated=true];
+  optional PathBoundsDebug path_bound_debug = 2 [deprecated=true];
+  optional ObstaclesDebug obstacles_debug = 3;
+  optional PathDataDebug path_data_debug = 4 [deprecated=true];
+  optional SpeedBoundDebug speed_bound_debug = 5 [deprecated=true];
+  optional StGraphDebug st_graph_debug = 6;
+  optional StGraphResultDebug st_graph_result_debug = 7;
+  optional SpeedDataDebug speed_data_debug = 8 [deprecated=true];
+  optional BehaviorDebug behavior_debug = 9;
+  optional BehaviorInfo behavior_result = 10;
+  optional Bound slt_bound = 11 [deprecated=true];
+  //planning time
+  optional uint64 planning_timestamp = 12;
+  optional MotionDebug motion_debug = 13;
+  optional uint64 frame_id = 14;
+  optional LocalRoutesDebugInfo local_routes_debug = 15;
+  optional NavigationDebugInfo navi_debug = 16;
+}

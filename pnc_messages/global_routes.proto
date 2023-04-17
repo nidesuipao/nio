@@ -1,0 +1,161 @@
+syntax = "proto2";
+package nio.proto;
+
+// mostly copied from mazu_messages/common/map_engine/global_routes.proto
+
+enum TrafficCongestionInfoType {
+  TC_TYPE_INVALID = 0;            //未知状态
+  TC_TYPE_STRAIGHT_WAY = 1;       //畅通
+  TC_TYPE_SLIGHT_CONGESTION = 2;  //缓行
+  TC_TYPE_CONGESTION = 3;         //拥堵
+  TC_TYPE_HEAVY_CONGESTION = 4;   //严重拥堵
+}
+
+message TrafficCongestionInfoDetail {
+  // 拥堵类型
+  optional TrafficCongestionInfoType traffic_congestion_info_type = 1;
+  // 对应拥堵类型的路段的长度，用米表示
+  optional double congestion_length_meter = 2;
+  // 拥堵时长，用秒表示
+  optional double congestion_time_s = 3;
+  // 拥堵路段开始点距离当前位置的长度，用米表示
+  optional double traffic_congestion_dist_meter = 4;
+}
+
+message TrafficCongestionInfo {
+  // 拥堵信息上次更新的时间
+  optional uint64 traffic_info_update_time_ns = 1;
+  //包含缓行，拥堵，严重拥堵等的路况信息细节
+  repeated TrafficCongestionInfoDetail traffic_congestion_info_details = 2;
+}
+
+
+message Point3d {
+  optional double longitude = 1;
+  optional double latitude = 2;
+  optional double altitude = 3;
+}
+
+
+message Point2d {
+  optional double longitude = 1;
+  optional double latitude = 2;
+}
+
+
+// A group of SD Links.
+message SdLinkInfo {
+  optional uint64 sd_link_id = 1; 
+  repeated Point3d shape_points = 2;  // 形点 
+  optional float link_length = 3;     // link长度，-1或者空代表无效值 
+}
+
+// A mapping relationship between SD links and HD links.
+message SdMatchedInfo {
+  // 分段的sd起始点在sd_link_info_list中的index(0-based)
+  optional uint32 start_sd_link_index = 1;
+  // 分段的sd结束点在sd_link_info_list中的index+1
+  optional uint32 end_sd_link_index = 2;
+}
+
+
+message HDLaneInfo {
+  // 当前车道
+  optional uint64 hd_lane_id = 1;
+  // 从上一个HDlaneGroup的哪些车道能进入当前车道，
+  // entry_lane_ids 不空 表示可以enter
+  repeated uint64 entry_lane_ids = 2;
+  // 从当前车道能进入下一个HDLaneGroup的的哪些车道， 不为空表示可以exit
+  repeated uint64 exit_lane_ids = 3;
+  // optional bool is_last_lane_group = 4; // 是否是当前hdlink的最后一个lane
+}
+
+
+// 描述一个在一个Hdlink内针对lane 的截断
+message HDLaneGroup {
+  optional uint64 hd_lane_group_id = 1;  // 当前lane group id
+  // 当前lane group 内所有 lane的 info， 前进方向上从左到右顺序
+  repeated HDLaneInfo hd_lane_infos = 2;
+}
+
+
+message HdLinkContent {
+  optional uint64 hd_link_id = 1;
+  optional double hd_link_length = 2;
+  repeated HDLaneGroup hd_lane_groups = 3;  // 前进方向上，从左到右的顺序
+  // hd link 起始点，GCJ02
+  optional Point3d link_start_point = 4;
+  //  hd link 终止点， 5，6用来计算车辆在hd
+  //  link上的相对位置，GCJ02,080版本不会输出
+  optional Point3d link_end_point = 5;
+  // 当前link的lane信息的状态，lane依赖九宫格填充，某些匹配到的link可能暂时查不到lane信息，
+  // 0表示lane信息存在，1表示可能存在但当前为空，2表示不存在
+  optional uint32 hd_link_lane_status = 6;
+}
+
+
+message HdLinkSegment {
+  // 一段segment内的所有hdlinkcontent
+  repeated HdLinkContent hd_link_contents = 1;
+  // hd link segment 长度
+  optional float segment_length_meter = 2;
+  // SD-HD 开始匹配点的坐标
+  optional Point3d hd_match_start_point = 3;
+  // SD-HD 终止匹配点的坐标
+  optional Point3d hd_match_end_point = 4;
+}
+
+
+message CruiseParkingResponse {
+  enum DestinationType {
+    HighwayToSAPA = 0;
+    HighWayToPSAP = 1;
+    SAPAToPSAP = 2;
+    PSAPToHighway = 3;
+    CurLocToHighway = 4;
+    SAPAToHighway = 5;
+
+    // new interface for future, will only use destination, keep the definition
+    // above just for compatibility
+    PowerSwapStationLocBox = 20;
+    ParkingZone = 21;
+    QueueArea = 22;
+    ToHighway = 23;
+    NoAvpRouting = 24;
+  }
+  optional Point2d power_swap_station_loc = 1;
+  optional DestinationType dest_type = 2;
+  optional string power_swap_station_id = 3;
+  // current loc of the vehicle when send request
+  optional Point3d current_loc = 4;
+  repeated uint64 current_lane_id_sequence = 5;
+  // 0: normal; 1: failed & fallback; 2: no request; 3: routing in progress
+  optional int32 routing_status = 6;
+  // in ns, timestamp when sending request
+  optional uint64 request_timestamp = 7;
+}
+
+
+message GlobalRouting {
+  // 0:未进入导航状态, 1:已进入导航状态， 可视化 
+  optional int32 route_match_state = 1; 
+  // 是否是完整路径，可视化 
+  optional bool is_full_routes = 2; 
+  // 当前hd_link_id，080 版本预计不会输出 
+  optional uint64 current_hd_link_id = 3; 
+  // 当前sd_link_id， 可视化 
+  optional uint64 current_sd_link_id = 4; 
+  // 最近一次重新计算匹配的时间，单位为ns 
+  optional uint64 last_match_time_ns = 5; 
+  // GlobalRouting 信息计算的计数器， 
+  // 用于下游判断路线信息是否有更新，每更新一次GlobalRouting 信息， 计数器加一 
+  optional uint64 global_routing_counter = 6; 
+  // sd发起请求时传入的link info列表， 可视化 
+  repeated SdLinkInfo sd_link_info_list = 7; 
+  // 匹配后的sd链路信息列表，元素个数与hd_link_segments相等 
+  repeated SdMatchedInfo sd_matched_info_list = 8; 
+  // hd_link_segments 表示九宫格内路线的前进方向上的每段连续的hd路段, PNC&可视化 
+  repeated HdLinkSegment hd_link_segments = 9; 
+  // BL120, 服务区导航相关 
+  optional CruiseParkingResponse cruise_parking_response = 10; 
+}

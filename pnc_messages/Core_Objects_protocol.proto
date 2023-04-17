@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+package nio.proto.eq4;
+
+message CoreObject{
+  optional uint32 id = 1;
+  optional float length=2;
+  optional float width=3;
+  optional float height=4;
+  optional float heading=5;
+  optional float abs_long_velocity=6;
+  optional float abs_lat_velocity=7;
+  optional float rel_long_velocity=8;
+  optional float rel_lat_velocity=9;
+  optional float absolute_speed=10;
+  optional float abs_long_acc=11;
+  optional float abs_lat_acc=12;
+  optional float abs_acceleration=13;
+  optional float long_distance=14;
+  optional float lat_distance=15;
+}
+
+message Core_Objects_protocol {
+  optional uint32  obj_vd_count = 1;
+  optional uint32  obj_vru_count = 2;
+  repeated CoreObject objects = 3;
+  optional uint32 obj_vd_cipv_id = 4;
+  optional uint64 time_pub = 5;
+}

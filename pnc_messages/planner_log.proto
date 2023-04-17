@@ -1,0 +1,35 @@
+syntax = "proto2";
+
+package nio.proto;
+
+message PlannerLogInfo{
+  // frame id of current planner frame
+  optional uint64 frame_id = 1;
+
+  // timestamp used as reference, ns
+  optional uint64 reference_timestamp = 2;
+
+  // car_state timestamp used in this planner frame, ns
+  optional uint64 car_state_timestamp = 3;
+
+  // perception object timestamp used in this planner frame, ns
+  optional uint64 perception_object_timestamp = 4;
+
+  // trajectory timestamp of this planner frame, used as reference, ns
+  optional uint64 trajectory_timestamp = 5;
+
+  // traffic signal timestamp of this planner frame, ns
+  optional uint64 traffic_signal_timestamp = 6;
+
+  //planning time
+  optional uint64 planning_timestamp = 7;
+
+  //planning start timestamp, planning sub time after compensation
+  optional uint64 planning_start_timestamp = 8;
+
+  // hmi state time
+  optional uint64 hmi_state_timestamp = 9;
+
+  // local road map timestamp
+  optional uint64 local_roadmap_timestamp = 10;
+}

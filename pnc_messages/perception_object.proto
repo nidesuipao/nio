@@ -1,0 +1,67 @@
+syntax = "proto2";
+
+package nio.proto;
+
+import "geometry.proto";
+import "prediction.proto";
+
+message PerceptionObject {
+  optional int32 id = 1;  // usually between 0 and 9999
+
+  optional Vector3d position = 2;  // in the map frame
+  optional Vector3d velocity = 3;  // east/north/up with respect to the map frame
+  optional Vector3d acceleration = 4; // east/north/up with respect to the map frame
+
+  // heading of object in range [-pi, pi), (east = 0, north = pi/2, west = -pi, south = -pi/2)
+  optional double heading = 5;
+  optional Vector3d bounding_box = 6;  // length/width/height
+  optional Polygon polygon = 7;  // object corner points, 2D, in the map frame
+
+  optional fixed64 tracking_time = 8;  // duration of tracking since detection, in ns
+
+  enum Type {
+    UNKNOWN = 0;
+    UNKNOWN_STATIC = 1;
+    UNKNOWN_DYNAMIC = 2;
+    PEDESTRIAN = 3;
+    BIKE = 4;
+    CAR = 5;
+    TRUCK = 6;
+    CONE = 7;
+  };
+  optional Type type = 9;
+
+  repeated Prediction prediction = 10;
+
+  enum Source {
+    RAVEN = 0 [deprecated = true];
+    ZEALOT = 1 [deprecated = true];
+    LIDAR = 2;
+    CAMERA = 3;
+    RADAR = 4;
+    LIDAR_CAMERA = 5;
+    RADAR_CAMERA = 6;
+    LIDAR_RADAR = 7;
+    LIDAR_RADAR_CAMERA = 8;
+  };
+
+  optional Source source = 11;
+  optional int32 point_cloud_size = 12;
+  repeated uint32 cluster_index = 13;
+  enum Coordinate{
+    RELATIVE = 0;
+    GLOBAL = 1;
+  }
+  optional Coordinate coordinate = 14;
+}
+
+message PerceptionObjects {
+  optional uint64 time_meas = 1;  // timestamp from the sensor input, in ns
+  optional uint64 time_pub = 2;   // system clock, when the msg is published, in ns
+  repeated PerceptionObject objects =3;
+  repeated string images = 4;           // 480 x 270 image to show on NUC
+}
+
+message PerceptionObjectsRequest {
+  optional Polygon polygon = 1;  // in the map frame
+}

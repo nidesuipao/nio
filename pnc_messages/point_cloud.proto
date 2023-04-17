@@ -1,0 +1,50 @@
+syntax = "proto2";
+
+package nio.proto;
+
+message LidarPoint {
+  required uint32 timestamp = 1;     /* timestamp offset with respect to the header time stamp - unit: ns */
+
+  required float x = 2;              /* x - unit: m        */
+  required float y = 3;              /* y - unit: m        */
+  required float z = 4;              /* z - unit: m        */
+
+  required int32 intensity = 5;      /* range: 0~255, default: -1 */
+  optional int32 reflector = 6;      /* range: 0~255, default: -1 */
+
+  required int32 ring_id = 7;        /* range: 0~127, default: -1 */
+  optional int32 scan_id = 8;        /* range: 0~3  , default: -1 */
+
+  optional int32 elongation = 9;     /* default: -1 */
+  optional bool in_roi = 10;         /* bool, whether point in roi, false: out , true: in, default: false*/
+}
+
+message Header {
+  /* At least contain the info below s */
+  required uint64 timestamp = 1;       /* timestamp from 1970-1-1  unit: ns */
+  required int64 idx = 2;                /* frame index        */
+  optional uint32 device_idx = 3;         /* device index, if multi lidar, default: 0 */
+
+  optional bool scan_direction = 4;      /* false: top->bottom, true: bottom->top, default: false*/
+  optional bool use_reflectance = 5;     /* false: intensity mode, true: reflectance mode, default: false FIELD REMOVED*/
+  /* optional bool multi_return_mode = 6; */   /* false: single return, true: multi return, default: false*/
+  optional int32 roi_h_angle = 7;        /* configured ROI in kInnoAngleUnit default: -1 */
+  optional int32 roi_v_angle =8;         /* configured ROI in kInnoAngleUnit default: -1 */
+
+  /* indicate confidence level for each frame,
+      low = 0 indicates the frame may have issue,
+      high = 255 indicates a good frame */
+  /* optional int32 conf_level=9; */ /* default: -1  FIELD REMOVED */
+  /* required string reserved=10; */ /* default: ""  FIELD REMOVED */
+
+}
+
+message LidarFrame {
+  required Header header = 1;
+  repeated LidarPoint points = 2;
+}
+
+
+message LidarRaw {
+  optional string raw_data = 1;
+}
